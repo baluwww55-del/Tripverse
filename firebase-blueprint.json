@@ -1,0 +1,65 @@
+{
+  "entities": {
+    "UserPreferences": {
+      "title": "UserPreferences",
+      "description": "Traveler profile preferences and constraints",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string", "description": "The traveler's name" },
+        "email": { "type": "string", "description": "The traveler's authenticated Google email" },
+        "budgetLevel": { "type": "string", "enum": ["budget", "moderate", "luxury"], "description": "Desired expense level" },
+        "travelStyle": { "type": "array", "description": "Interests like culture, nature, foodie, etc." },
+        "dietary": { "type": "string", "description": "Dietary requirements or restrictions" },
+        "preferredActivityLevel": { "type": "string", "enum": ["low", "medium", "high"], "description": "Physical pace of trip" }
+      },
+      "required": ["name", "email", "budgetLevel", "travelStyle", "dietary", "preferredActivityLevel"]
+    },
+    "SavedTrip": {
+      "title": "SavedTrip",
+      "description": "A saved and formulated travel itinerary",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "destination": { "type": "string" },
+        "startDate": { "type": "string" },
+        "endDate": { "type": "string" },
+        "daysCount": { "type": "number" },
+        "budget": { "type": "number" },
+        "budgetLevel": { "type": "string" },
+        "itinerary": { "type": "array" },
+        "hotels": { "type": "array" },
+        "flights": { "type": "array" },
+        "createdAt": { "type": "string" },
+        "notes": { "type": "string" }
+      },
+      "required": ["id", "destination", "startDate", "endDate", "daysCount", "budget", "itinerary", "createdAt"]
+    },
+    "ChatMessage": {
+      "title": "ChatMessage",
+      "description": "Travel concierge chatbot message record",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "sender": { "type": "string", "enum": ["user", "ai"] },
+        "agentType": { "type": "string", "enum": ["user", "planner", "guide"] },
+        "text": { "type": "string" },
+        "timestamp": { "type": "string" }
+      },
+      "required": ["id", "sender", "text", "timestamp"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "UserPreferences",
+      "description": "User profile and travel preferences index"
+    },
+    "/users/{userId}/trips/{tripId}": {
+      "schema": "SavedTrip",
+      "description": "Saved travel itineraries for a specific traveler"
+    },
+    "/users/{userId}/chats/{chatId}": {
+      "schema": "ChatMessage",
+      "description": "Chat log records for the multi-agent chat interface"
+    }
+  }
+}
