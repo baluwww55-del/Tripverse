@@ -57,6 +57,20 @@ export default function SmartPlanner({
   const [isLoadingSpaces, setIsLoadingSpaces] = useState<boolean>(false);
   const [chatStatusMessage, setChatStatusMessage] = useState<string>("");
 
+  // Automated Thinking States Step Rotation Effect
+  const [loadingStep, setLoadingStep] = useState(0);
+
+  useEffect(() => {
+    if (!isGenerating) {
+      setLoadingStep(0);
+      return;
+    }
+    const interval = setInterval(() => {
+      setLoadingStep(prev => (prev + 1) % 3);
+    }, 1800);
+    return () => clearInterval(interval);
+  }, [isGenerating]);
+
   const getDayDateString = (dayNum: number): string => {
     try {
       const baseDateStr = activePlan?.startDate || new Date().toISOString().split('T')[0];
@@ -308,14 +322,158 @@ export default function SmartPlanner({
         </div>
       )}
 
-      {/* Loading States animations */}
+      {/* Loading States animations with Thinking States & Skeletons */}
       {isGenerating && (
-        <div className="bg-white p-12 rounded-3xl border border-slate-200 shadow-md space-y-4 text-center">
-          <div className="relative w-14 h-14 mx-auto">
-            <div className="absolute inset-0 rounded-full border-4 border-blue-500/10 border-t-blue-600 animate-spin"></div>
+        <div className="space-y-8 animate-fade-in text-left">
+          {/* Thinking Card */}
+          <div className="bg-gradient-to-br from-slate-900 via-slate-850 to-slate-950 p-6 md:p-8 rounded-3xl border border-slate-800 text-white shadow-xl space-y-6">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <div className="flex items-center gap-4">
+                <div className="relative w-12 h-12 flex items-center justify-center rounded-2xl bg-emerald-500/10 border border-emerald-500/30">
+                  <RefreshCw className="h-6 w-6 text-emerald-400 animate-spin" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-bold tracking-wider text-emerald-400 uppercase">VoyageAI Planner Core</h3>
+                  <p className="text-xs text-slate-350 mt-0.5 mt-1">Configuring personalized Indian travel experiences for <span className="font-semibold text-white">{searchDest}</span></p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2 bg-slate-800/80 px-3.5 py-1.5 rounded-full border border-slate-700">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
+                <span className="text-[10px] font-mono text-slate-300">AI Active Curation</span>
+              </div>
+            </div>
+
+            {/* Micro Steps with animated pulse */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-5 border-t border-slate-800">
+              <div className="flex items-center gap-3">
+                <div className={`p-1.5 rounded-full text-[10px] font-bold transition-all duration-300 flex items-center justify-center w-6 h-6 ${
+                  loadingStep >= 0 
+                  ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' 
+                  : 'bg-slate-800/50 text-slate-500 border border-slate-800'
+                }`}>
+                  {loadingStep > 0 ? "✓" : "●"}
+                </div>
+                <div className="text-left">
+                  <p className={`text-xs font-bold transition-colors ${loadingStep >= 0 ? 'text-white' : 'text-slate-500'}`}>Generating your India itinerary...</p>
+                  <p className="text-[10px] text-slate-400">Day structure & thematic routing</p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-3">
+                <div className={`p-1.5 rounded-full text-[10px] font-bold transition-all duration-300 flex items-center justify-center w-6 h-6 ${
+                  loadingStep >= 1 
+                  ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' 
+                  : 'bg-slate-800/50 text-slate-500 border border-slate-800'
+                }`}>
+                  {loadingStep > 1 ? "✓" : "●"}
+                </div>
+                <div className="text-left">
+                  <p className={`text-xs font-bold transition-colors ${loadingStep >= 1 ? 'text-white' : 'text-slate-500'}`}>Finding the best travel experiences...</p>
+                  <p className="text-[10px] text-slate-400">Heritage spots & local options</p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-3">
+                <div className={`p-1.5 rounded-full text-[10px] font-bold transition-all duration-300 flex items-center justify-center w-6 h-6 ${
+                  loadingStep >= 2 
+                  ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' 
+                  : 'bg-slate-800/50 text-slate-500 border border-slate-800'
+                }`}>
+                  {loadingStep > 2 ? "✓" : "●"}
+                </div>
+                <div className="text-left">
+                  <p className={`text-xs font-bold transition-colors ${loadingStep >= 2 ? 'text-white' : 'text-slate-500'}`}>Optimizing routes and stays...</p>
+                  <p className="text-[10px] text-slate-400">Matching hotel metrics & allowance</p>
+                </div>
+              </div>
+            </div>
+            <p className="text-[10px] text-slate-400 italic text-center w-full pt-2">
+              "Applying dietary preferences [{userPrefs.dietary}] and activity metrics of {userPrefs.preferredActivityLevel} intensity"
+            </p>
           </div>
-          <p className="text-sm font-semibold tracking-wide text-slate-800">Concierge Agent is detailing hours, checking weather projections, and sorting hotel options...</p>
-          <p className="text-xs text-slate-500 italic max-w-sm mx-auto">"Matching dietary codes [{userPrefs.dietary}] and activity metrics of {userPrefs.preferredActivityLevel} intensity"</p>
+
+          {/* Skeleton Board with shimmering blocks */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 pointer-events-none opacity-50">
+            {/* Left timeline skeletons */}
+            <div className="lg:col-span-2 space-y-6">
+              {/* Climate forecast card skeleton */}
+              <div className="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm flex items-center gap-3 animate-pulse">
+                <div className="h-10 w-10 rounded-xl bg-slate-200"></div>
+                <div className="flex-1 space-y-2">
+                  <div className="h-2.5 bg-slate-250 rounded-full w-24"></div>
+                  <div className="h-3.5 bg-slate-200 rounded-full w-2/3"></div>
+                </div>
+              </div>
+
+              {/* Day itinerary skeleton */}
+              <div className="bg-white rounded-3xl border border-slate-200 shadow-md overflow-hidden animate-pulse">
+                <div className="bg-slate-50 p-5 border-b border-slate-100 flex justify-between items-center">
+                  <div className="space-y-1.5 w-1/3">
+                    <div className="h-3 bg-slate-200 rounded-full w-2/3"></div>
+                    <div className="h-4 bg-slate-300 rounded-full w-full"></div>
+                  </div>
+                  <div className="h-8 bg-slate-200 rounded-xl w-24"></div>
+                </div>
+                <div className="p-6 space-y-6">
+                  {[1, 2, 3].map(i => (
+                    <div key={i} className="flex gap-4">
+                      {/* Left icon timeline dot */}
+                      <div className="flex flex-col items-center">
+                        <div className="w-8 h-8 rounded-full bg-slate-200 flex items-center justify-center"></div>
+                        <div className="w-0.5 bg-slate-100 flex-1"></div>
+                      </div>
+                      {/* Event block */}
+                      <div className="flex-1 space-y-3 pb-4">
+                        <div className="flex justify-between items-center">
+                          <div className="h-4 bg-slate-300 rounded-full w-1/3"></div>
+                          <div className="h-3.5 bg-slate-200 rounded-full w-16"></div>
+                        </div>
+                        <div className="h-2.5 bg-slate-200 rounded-full w-5/6"></div>
+                        <div className="h-2.5 bg-slate-200 rounded-full w-1/2"></div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Right sidebar skeletons */}
+            <div className="space-y-6 animate-pulse">
+              {/* Budget card skeleton */}
+              <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-md space-y-4">
+                <div className="h-4 bg-slate-300 rounded-full w-1/3 mb-4"></div>
+                <div className="space-y-2.5">
+                  <div className="flex justify-between">
+                    <div className="h-3 bg-slate-200 rounded-full w-20"></div>
+                    <div className="h-3 bg-slate-200 rounded-full w-12"></div>
+                  </div>
+                  <div className="flex justify-between">
+                    <div className="h-3 bg-slate-200 rounded-full w-16"></div>
+                    <div className="h-3 bg-slate-200 rounded-full w-14"></div>
+                  </div>
+                  <div className="flex justify-between pt-3 border-t border-slate-100">
+                    <div className="h-3.5 bg-slate-300 rounded-full w-24"></div>
+                    <div className="h-3.5 bg-slate-300 rounded-full w-16"></div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Hotels card skeleton */}
+              <div className="bg-white p-6 rounded-3xl border border-slate-250 shadow-md space-y-4">
+                <div className="h-4 bg-slate-300 rounded-full w-1/2"></div>
+                {[1, 2].map((i) => (
+                  <div key={i} className="flex gap-3 pt-3 border-t border-slate-100">
+                    <div className="w-16 h-16 rounded-xl bg-slate-200"></div>
+                    <div className="flex-1 space-y-2.5">
+                      <div className="h-3.5 bg-slate-300 rounded-full w-3/4"></div>
+                      <div className="h-2.5 bg-slate-200 rounded-full w-1/2"></div>
+                      <div className="h-3 bg-slate-200 rounded-full w-24"></div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
         </div>
       )}
 

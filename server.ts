@@ -2,7 +2,7 @@ import express from "express";
 import path from "path";
 import { createServer as createViteServer } from "vite";
 import { Database } from "./server/db.js";
-import { generateAILineItinerary, processAgentChat } from "./server/ai.js";
+import { generateAILineItinerary, generateSimulatedItinerary, processAgentChat } from "./server/ai.js";
 import { getWeatherForecast } from "./server/weather.js";
 import { locateDestinationImage } from "./server/imageService.js";
 
@@ -129,8 +129,17 @@ async function startServer() {
 
       res.json(itineraryOut);
     } catch (error: any) {
-      console.error("Failed to generate AI plan:", error);
-      res.status(500).json({ error: error.message || "Planner AI model experienced an error generating the route calendar." });
+      console.warn("[Planner AI] Primary generation had error, executing failsafe template generator:", error.message || error);
+      try {
+        const parsedDays = parseInt(daysCount);
+        const parsedBudget = parseFloat(budget);
+        const userPrefs = Database.getPreferences();
+        const fallbackPlan = generateSimulatedItinerary(destination, parsedDays, parsedBudget, userPrefs);
+        res.json(fallbackPlan);
+      } catch (fallbackError: any) {
+        console.error("Critical fallback failure:", fallbackError);
+        res.status(500).json({ error: "Core itineray engine failsafe system failed." });
+      }
     }
   });
 

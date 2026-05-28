@@ -43,7 +43,9 @@ const CURATED_IMAGES: { [key: string]: string } = {
   "amer fort": "https://images.unsplash.com/photo-1599661046289-e31897846e41?auto=format&fit=crop&w=1200&q=80",
   "jodhpur": "https://images.unsplash.com/photo-1590050752117-238cb0612b1b?auto=format&fit=crop&w=1200&q=80",
   "udaipur": "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=1200&q=80",
-  "jaipur": "https://images.unsplash.com/photo-1477584305313-a9f53db49381?auto=format&fit=crop&w=1200&q=80"
+  "jaipur": "https://images.unsplash.com/photo-1477584305313-a9f53db49381?auto=format&fit=crop&w=1200&q=80",
+  "varanasi": "https://images.unsplash.com/photo-1561361531-901416800cc4?auto=format&fit=crop&w=1200&q=80",
+  "kanyakumari": "https://images.unsplash.com/photo-1582510003544-4d00b7f74220?auto=format&fit=crop&w=1200&q=80"
 };
 
 const DEFAULT_INDIA_SCENERY = [
@@ -52,48 +54,132 @@ const DEFAULT_INDIA_SCENERY = [
   "https://images.unsplash.com/photo-1506461883276-594a12b11db3?auto=format&fit=crop&w=1200&q=80"
 ];
 
+// Indian states alignment mapping helper
+const STATE_MAP: { [key: string]: string } = {
+  "taj mahal": "Agra Uttar Pradesh",
+  "agra": "Uttar Pradesh",
+  "varanasi": "Uttar Pradesh",
+  "lucknow": "Uttar Pradesh",
+  "jaipur": "Rajasthan",
+  "jodhpur": "Rajasthan",
+  "udaipur": "Rajasthan",
+  "jaisalmer": "Rajasthan",
+  "mumbai": "Maharashtra",
+  "pune": "Maharashtra",
+  "ellora": "Maharashtra",
+  "ajanta": "Maharashtra",
+  "goa": "Goa",
+  "coorg": "Karnataka",
+  "mysore": "Karnataka",
+  "mysuru": "Karnataka",
+  "hampi": "Karnataka",
+  "bengaluru": "Karnataka",
+  "bangalore": "Karnataka",
+  "munnar": "Kerala",
+  "alleppey": "Kerala",
+  "alappuzha": "Kerala",
+  "kochi": "Kerala",
+  "wayanad": "Kerala",
+  "ooty": "Tamil Nadu",
+  "chennai": "Tamil Nadu",
+  "madurai": "Tamil Nadu",
+  "meenakshi": "Tamil Nadu",
+  "pondicherry": "Puducherry",
+  "manali": "Himachal Pradesh",
+  "shimla": "Himachal Pradesh",
+  "rishikesh": "Uttarakhand",
+  "darjeeling": "West Bengal",
+  "kolkata": "West Bengal",
+  "amritsar": "Punjab",
+  "golden temple": "Punjab",
+  "leh": "Ladakh",
+  "ladakh": "Ladakh",
+  "srinagar": "Kashmir",
+  "gulmarg": "Kashmir",
+  " kaziranga": "Assam",
+  "shillong": "Meghalaya",
+  "gangtok": "Sikkim",
+};
+
+// In-Memory Returned Images Registry to guarantee unique graphics per destination
+const RETURNED_IMAGES_POOL = new Set<string>();
+
 export async function locateDestinationImage(query: string): Promise<string> {
   const norm = query.toLowerCase().trim();
 
-  // 1. Direct Curated Match
+  // 1. Curated Premium Landscape Match
   for (const key of Object.keys(CURATED_IMAGES)) {
     if (norm.includes(key) || key.includes(norm)) {
-      return CURATED_IMAGES[key];
+      const matchUrl = CURATED_IMAGES[key];
+      if (!RETURNED_IMAGES_POOL.has(matchUrl)) {
+        RETURNED_IMAGES_POOL.add(matchUrl);
+        return matchUrl;
+      }
     }
   }
 
-  // 2. Wikipedia Keyless Query (High Resolution & Dynamic)
+  // 2. Format query format: name, state, tourism
+  let placeName = query.replace(/[,\.]/g, "").trim();
+  let stateName = "";
+  for (const [key, val] of Object.entries(STATE_MAP)) {
+    if (norm.includes(key) || key.includes(norm)) {
+      stateName = val;
+      break;
+    }
+  }
+  if (!stateName) {
+    stateName = "India";
+  }
+
+  const smartFormulatedQuery = `${placeName} ${stateName} tourism`;
+
+  // 3. Wikipedia Keyless Query (Strict landscape validation)
   try {
-    const searchUrl = `https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(query + " India")}&format=json&origin=*`;
+    const searchUrl = `https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(smartFormulatedQuery)}&format=json&origin=*`;
     const searchResp = await fetch(searchUrl);
     const searchJson = await searchResp.json() as any;
 
     if (searchJson?.query?.search?.length > 0) {
-      const bestTitle = searchJson.query.search[0].title;
-      const imageUrl = `https://en.wikipedia.org/w/api.php?action=query&titles=${encodeURIComponent(bestTitle)}&prop=pageimages&pithumbsize=1200&format=json&origin=*`;
-      const imgResp = await fetch(imageUrl);
-      const imgJson = await imgResp.json() as any;
+      // Traverse top 3 candidates to retrieve a unique image
+      for (const result of searchJson.query.search.slice(0, 3)) {
+        const bestTitle = result.title;
+        const imageUrl = `https://en.wikipedia.org/w/api.php?action=query&titles=${encodeURIComponent(bestTitle)}&prop=pageimages&pithumbsize=1200&format=json&origin=*`;
+        const imgResp = await fetch(imageUrl);
+        const imgJson = await imgResp.json() as any;
 
-      const pages = imgJson?.query?.pages;
-      if (pages) {
-        const pageId = Object.keys(pages)[0];
-        const originalImg = pages[pageId]?.thumbnail?.source;
-        if (originalImg) {
-          return originalImg;
+        const pages = imgJson?.query?.pages;
+        if (pages) {
+          const pageId = Object.keys(pages)[0];
+          const originalImg = pages[pageId]?.thumbnail?.source;
+          
+          // Validate uniqueness and exclude generic icons/flags
+          if (originalImg && !RETURNED_IMAGES_POOL.has(originalImg) && !originalImg.includes('svg') && !originalImg.includes('Symbol')) {
+            RETURNED_IMAGES_POOL.add(originalImg);
+            return originalImg;
+          }
         }
       }
     }
   } catch (error) {
-    console.error(`[Image API] Wikimedia failed to query for [${query}], continuing...`, error);
+    console.error(`[Image API] Wikimedia fallback query failed for [${smartFormulatedQuery}], continuing...`, error);
   }
 
-  // 3. Fallback to general gorgeous Unsplash search term matching
+  // 4. Fallback to gorgeous high-resolution realistic Unsplash keywords with unique signature
   try {
-    // Generate an illustrative Unsplash URL based on query context
-    const cleanTerm = encodeURIComponent(query.replace(/[^a-zA-Z0-9\s]/g, "").trim());
-    return `https://images.unsplash.com/photo-1524492412937-b28074a5d7da?auto=format&fit=crop&w=1200&q=80&sig=${cleanTerm}`;
+    const cleanTerm = encodeURIComponent(smartFormulatedQuery.replace(/[^a-zA-Z0-9\s]/g, "").trim());
+    // Create seed signature depending on place name count to guarantee different URL paths
+    const seedId = Math.abs(placeName.split("").reduce((acc, char) => acc + char.charCodeAt(0), 0)) % 1000;
+    const unsplashLandscapeUrl = `https://images.unsplash.com/photo-1524492412937-b28074a5d7da?auto=format&fit=crop&w=1200&q=80&sig=${cleanTerm}_${seedId}`;
+    
+    if (!RETURNED_IMAGES_POOL.has(unsplashLandscapeUrl)) {
+      RETURNED_IMAGES_POOL.add(unsplashLandscapeUrl);
+      return unsplashLandscapeUrl;
+    }
+    
+    return `https://images.unsplash.com/photo-1506461883276-594a12b11db3?auto=format&fit=crop&w=1200&q=80&sig=${cleanTerm}_alt_${seedId}`;
   } catch (e) {
-    // Ultimate local backup
-    return DEFAULT_INDIA_SCENERY[Math.floor(Math.random() * DEFAULT_INDIA_SCENERY.length)];
+    // Ultimate random scenery item fallback
+    const finalFallback = DEFAULT_INDIA_SCENERY[Math.floor(Math.random() * DEFAULT_INDIA_SCENERY.length)];
+    return finalFallback;
   }
 }
