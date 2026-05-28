@@ -447,95 +447,189 @@ export async function generateAILineItinerary(
       IMPORTANT: ALL estimated costs, day-by-day activity costs, flight prices, hotel night rates, and daily allowances MUST be calculated and represented in Indian Rupees (INR) which fits the total budget limit of ₹${budget}.
     `;
 
-    const response = await client.models.generateContent({
-      model: "gemini-3.5-flash",
-      contents: prompt,
-      config: {
-        responseMimeType: "application/json",
-        systemInstruction: "You are VoyageAI, a helpful, deeply cultured Indian travel curation system. Provide fully structured, high-accuracy JSON responses following the schema exactly. Ensure suggested activity costs build exactly into the overall travel budgets. Format all output prices in Indian Rupees (INR) - DO NOT mix USD or other formats. Do not include Markdown blocks like ```json inside the JSON itself.",
-        responseSchema: {
-          type: Type.OBJECT,
-          properties: {
-            weatherSummary: {
-              type: Type.STRING,
-              description: "Brief current or typical weather summary during the trip with advisory if necessary."
-            },
-            budgetBreakdown: {
-              type: Type.OBJECT,
-              properties: {
-                flightsEstimated: { type: Type.INTEGER, description: "Estimated flight/train transport cost value in Indian Rupees (INR)." },
-                hotelsEstimated: { type: Type.INTEGER, description: "Estimated overall hotel cost value in Indian Rupees (INR) for the full stay." },
-                activitiesEstimated: { type: Type.INTEGER, description: "Estimated sum of all activity entry fees/passes in Indian Rupees (INR)." },
-                dailyAllowance: { type: Type.INTEGER, description: "Calculated daily recommendation for local meals/rickshaws in Indian Rupees (INR)." }
+    let response;
+    try {
+      response = await client.models.generateContent({
+        model: "gemini-3.5-flash",
+        contents: prompt,
+        config: {
+          responseMimeType: "application/json",
+          systemInstruction: "You are VoyageAI, a helpful, deeply cultured Indian travel curation system. Provide fully structured, high-accuracy JSON responses following the schema exactly. Ensure suggested activity costs build exactly into the overall travel budgets. Format all output prices in Indian Rupees (INR) - DO NOT mix USD or other formats. Do not include Markdown blocks like ```json inside the JSON itself.",
+          responseSchema: {
+            type: Type.OBJECT,
+            properties: {
+              weatherSummary: {
+                type: Type.STRING,
+                description: "Brief current or typical weather summary during the trip with advisory if necessary."
               },
-              required: ["flightsEstimated", "hotelsEstimated", "activitiesEstimated", "dailyAllowance"]
-            },
-            days: {
-              type: Type.ARRAY,
-              description: "Array of day details containing specific schedules.",
-              items: {
+              budgetBreakdown: {
                 type: Type.OBJECT,
                 properties: {
-                  day: { type: Type.INTEGER },
-                  theme: { type: Type.STRING, description: "Day overall core focus theme (e.g. Ancient Vijayanagara Sights or Maratha Shore walks)." },
-                  activities: {
-                    type: Type.ARRAY,
-                    items: {
-                      type: Type.OBJECT,
-                      properties: {
-                        time: { type: Type.STRING, description: "Typical hours like 09:30 AM or 03:00 PM." },
-                        title: { type: Type.STRING, description: "Descriptive name of monument, temple, palace, or authentic diner." },
-                        description: { type: Type.STRING, description: "Beautiful summary of historical significance or what local cuisine to try there." },
-                        cost: { type: Type.INTEGER, description: "Individual cost in INR (0 if free)." },
-                        location: { type: Type.STRING },
-                        rating: { type: Type.NUMBER, description: "Local user rating scale 1 to 5." }
-                      },
-                      required: ["time", "title", "description", "cost", "location"]
+                  flightsEstimated: { type: Type.INTEGER, description: "Estimated flight/train transport cost value in Indian Rupees (INR)." },
+                  hotelsEstimated: { type: Type.INTEGER, description: "Estimated overall hotel cost value in Indian Rupees (INR) for the full stay." },
+                  activitiesEstimated: { type: Type.INTEGER, description: "Estimated sum of all activity entry fees/passes in Indian Rupees (INR)." },
+                  dailyAllowance: { type: Type.INTEGER, description: "Calculated daily recommendation for local meals/rickshaws in Indian Rupees (INR)." }
+                },
+                required: ["flightsEstimated", "hotelsEstimated", "activitiesEstimated", "dailyAllowance"]
+              },
+              days: {
+                type: Type.ARRAY,
+                description: "Array of day details containing specific schedules.",
+                items: {
+                  type: Type.OBJECT,
+                  properties: {
+                    day: { type: Type.INTEGER },
+                    theme: { type: Type.STRING, description: "Day overall core focus theme (e.g. Ancient Vijayanagara Sights or Maratha Shore walks)." },
+                    activities: {
+                      type: Type.ARRAY,
+                      items: {
+                        type: Type.OBJECT,
+                        properties: {
+                          time: { type: Type.STRING, description: "Typical hours like 09:30 AM or 03:00 PM." },
+                          title: { type: Type.STRING, description: "Descriptive name of monument, temple, palace, or authentic diner." },
+                          description: { type: Type.STRING, description: "Beautiful summary of historical significance or what local cuisine to try there." },
+                          cost: { type: Type.INTEGER, description: "Individual cost in INR (0 if free)." },
+                          location: { type: Type.STRING },
+                          rating: { type: Type.NUMBER, description: "Local user rating scale 1 to 5." }
+                        },
+                        required: ["time", "title", "description", "cost", "location"]
+                      }
                     }
-                  }
-                },
-                required: ["day", "theme", "activities"]
+                  },
+                  required: ["day", "theme", "activities"]
+                }
+              },
+              suggestedHotels: {
+                type: Type.ARRAY,
+                description: "Highly rated local accommodations representing best matches for the selected budget choice in Indian Rupees.",
+                items: {
+                  type: Type.OBJECT,
+                  properties: {
+                    name: { type: Type.STRING },
+                    price: { type: Type.INTEGER, description: "Nightly price estimation in Indian Rupees (INR)." },
+                    rating: { type: Type.NUMBER },
+                    location: { type: Type.STRING },
+                    image: { type: Type.STRING, description: "Leave empty or provide unsplash landscape placeholder match value." }
+                  },
+                  required: ["name", "price", "rating", "location"]
+                }
+              },
+              suggestedFlights: {
+                type: Type.ARRAY,
+                description: "Logical flight paths or train routes to reach destination in Indian Rupees.",
+                items: {
+                  type: Type.OBJECT,
+                  properties: {
+                    carrier: { type: Type.STRING, description: "Airline carrier like Air India or train like Shatabdi/Vande Bharat Express." },
+                    price: { type: Type.INTEGER, description: "Estimated ticket cost in Indian Rupees (INR)." },
+                    duration: { type: Type.STRING, description: "e.g. 2h 15m or 5h 30m" },
+                    departure: { type: Type.STRING, description: "Sample direct or 1-stop statement." }
+                  },
+                  required: ["carrier", "price", "duration"]
+                }
+              },
+              travelTips: {
+                type: Type.ARRAY,
+                items: { type: Type.STRING },
+                description: "Helpful cultural, security, regional greeting translation, or logistics suggestions."
               }
             },
-            suggestedHotels: {
-              type: Type.ARRAY,
-              description: "Highly rated local accommodations representing best matches for the selected budget choice in Indian Rupees.",
-              items: {
-                type: Type.OBJECT,
-                properties: {
-                  name: { type: Type.STRING },
-                  price: { type: Type.INTEGER, description: "Nightly price estimation in Indian Rupees (INR)." },
-                  rating: { type: Type.NUMBER },
-                  location: { type: Type.STRING },
-                  image: { type: Type.STRING, description: "Leave empty or provide unsplash landscape placeholder match value." }
-                },
-                required: ["name", "price", "rating", "location"]
-              }
-            },
-            suggestedFlights: {
-              type: Type.ARRAY,
-              description: "Logical flight paths or train routes to reach destination in Indian Rupees.",
-              items: {
-                type: Type.OBJECT,
-                properties: {
-                  carrier: { type: Type.STRING, description: "Airline carrier like Air India or train like Shatabdi/Vande Bharat Express." },
-                  price: { type: Type.INTEGER, description: "Estimated ticket cost in Indian Rupees (INR)." },
-                  duration: { type: Type.STRING, description: "e.g. 2h 15m or 5h 30m" },
-                  departure: { type: Type.STRING, description: "Sample direct or 1-stop statement." }
-                },
-                required: ["carrier", "price", "duration"]
-              }
-            },
-            travelTips: {
-              type: Type.ARRAY,
-              items: { type: Type.STRING },
-              description: "Helpful cultural, security, regional greeting translation, or logistics suggestions."
-            }
-          },
-          required: ["weatherSummary", "budgetBreakdown", "days", "suggestedHotels", "suggestedFlights", "travelTips"]
+            required: ["weatherSummary", "budgetBreakdown", "days", "suggestedHotels", "suggestedFlights", "travelTips"]
+          }
         }
-      }
-    });
+      });
+    } catch (geminiError: any) {
+      console.warn("[Voyage AI Planner] gemini-3.5-flash failed or experienced high demand. Trying stable fallback model gemini-flash-latest...", geminiError.message || geminiError);
+      response = await client.models.generateContent({
+        model: "gemini-flash-latest",
+        contents: prompt,
+        config: {
+          responseMimeType: "application/json",
+          systemInstruction: "You are VoyageAI, a helpful, deeply cultured Indian travel curation system. Provide fully structured, high-accuracy JSON responses following the schema exactly. Ensure suggested activity costs build exactly into the overall travel budgets. Format all output prices in Indian Rupees (INR) - DO NOT mix USD or other formats. Do not include Markdown blocks like ```json inside the JSON itself.",
+          responseSchema: {
+            type: Type.OBJECT,
+            properties: {
+              weatherSummary: {
+                type: Type.STRING,
+                description: "Brief current or typical weather summary during the trip with advisory if necessary."
+              },
+              budgetBreakdown: {
+                type: Type.OBJECT,
+                properties: {
+                  flightsEstimated: { type: Type.INTEGER, description: "Estimated flight/train transport cost value in Indian Rupees (INR)." },
+                  hotelsEstimated: { type: Type.INTEGER, description: "Estimated overall hotel cost value in Indian Rupees (INR) for the full stay." },
+                  activitiesEstimated: { type: Type.INTEGER, description: "Estimated sum of all activity entry fees/passes in Indian Rupees (INR)." },
+                  dailyAllowance: { type: Type.INTEGER, description: "Calculated daily recommendation for local meals/rickshaws in Indian Rupees (INR)." }
+                },
+                required: ["flightsEstimated", "hotelsEstimated", "activitiesEstimated", "dailyAllowance"]
+              },
+              days: {
+                type: Type.ARRAY,
+                description: "Array of day details containing specific schedules.",
+                items: {
+                  type: Type.OBJECT,
+                  properties: {
+                    day: { type: Type.INTEGER },
+                    theme: { type: Type.STRING, description: "Day overall core focus theme (e.g. Ancient Vijayanagara Sights or Maratha Shore walks)." },
+                    activities: {
+                      type: Type.ARRAY,
+                      items: {
+                        type: Type.OBJECT,
+                        properties: {
+                          time: { type: Type.STRING, description: "Typical hours like 09:30 AM or 03:00 PM." },
+                          title: { type: Type.STRING, description: "Descriptive name of monument, temple, palace, or authentic diner." },
+                          description: { type: Type.STRING, description: "Beautiful summary of historical significance or what local cuisine to try there." },
+                          cost: { type: Type.INTEGER, description: "Individual cost in INR (0 if free)." },
+                          location: { type: Type.STRING },
+                          rating: { type: Type.NUMBER, description: "Local user rating scale 1 to 5." }
+                        },
+                        required: ["time", "title", "description", "cost", "location"]
+                      }
+                    }
+                  },
+                  required: ["day", "theme", "activities"]
+                }
+              },
+              suggestedHotels: {
+                type: Type.ARRAY,
+                description: "Highly rated local accommodations representing best matches for the selected budget choice in Indian Rupees.",
+                items: {
+                  type: Type.OBJECT,
+                  properties: {
+                    name: { type: Type.STRING },
+                    price: { type: Type.INTEGER, description: "Nightly price estimation in Indian Rupees (INR)." },
+                    rating: { type: Type.NUMBER },
+                    location: { type: Type.STRING },
+                    image: { type: Type.STRING, description: "Leave empty or provide unsplash landscape placeholder match value." }
+                  },
+                  required: ["name", "price", "rating", "location"]
+                }
+              },
+              suggestedFlights: {
+                type: Type.ARRAY,
+                description: "Logical flight paths or train routes to reach destination in Indian Rupees.",
+                items: {
+                  type: Type.OBJECT,
+                  properties: {
+                    carrier: { type: Type.STRING, description: "Airline carrier like Air India or train like Shatabdi/Vande Bharat Express." },
+                    price: { type: Type.INTEGER, description: "Estimated ticket cost in Indian Rupees (INR)." },
+                    duration: { type: Type.STRING, description: "e.g. 2h 15m or 5h 30m" },
+                    departure: { type: Type.STRING, description: "Sample direct or 1-stop statement." }
+                  },
+                  required: ["carrier", "price", "duration"]
+                }
+              },
+              travelTips: {
+                type: Type.ARRAY,
+                items: { type: Type.STRING },
+                description: "Helpful cultural, security, regional greeting translation, or logistics suggestions."
+              }
+            },
+            required: ["weatherSummary", "budgetBreakdown", "days", "suggestedHotels", "suggestedFlights", "travelTips"]
+          }
+        }
+      });
+    }
 
     const parsed = JSON.parse(response.text);
     return parsed;
@@ -587,16 +681,29 @@ export async function processAgentChat(
       Formulate a highly engaging, helpful, premium response in 2-3 concise paragraphs. Refer to user preference variables naturally where applicable. Provide helpful bullet points for structures.
     `;
 
-    // Convert historical chat parameters
-    const chat = client.chats.create({
-      model: "gemini-3.5-flash",
-      config: {
-        systemInstruction: systemPrompt,
-        temperature: 0.8
-      }
-    });
+    // Convert historical chat parameters with dual-model fallback support
+    let response;
+    try {
+      const chat = client.chats.create({
+        model: "gemini-3.5-flash",
+        config: {
+          systemInstruction: systemPrompt,
+          temperature: 0.8
+        }
+      });
+      response = await chat.sendMessage({ message: latestMsg });
+    } catch (chatErr: any) {
+      console.warn("[Agent Chat] gemini-3.5-flash failed, retrying system message with stable fallback gemini-flash-latest...", chatErr.message || chatErr);
+      const chat = client.chats.create({
+        model: "gemini-flash-latest",
+        config: {
+          systemInstruction: systemPrompt,
+          temperature: 0.8
+        }
+      });
+      response = await chat.sendMessage({ message: latestMsg });
+    }
 
-    const response = await chat.sendMessage({ message: latestMsg });
     return {
       reply: response.text || "I was unable to trace that. Could you please specify your destination coordinates?",
       activeAgent

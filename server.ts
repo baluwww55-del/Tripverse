@@ -3,6 +3,7 @@ import path from "path";
 import { createServer as createViteServer } from "vite";
 import { Database } from "./server/db.js";
 import { generateAILineItinerary, processAgentChat } from "./server/ai.js";
+import { getWeatherForecast } from "./server/weather.js";
 
 async function startServer() {
   const app = express();
@@ -78,6 +79,18 @@ async function startServer() {
       res.json({ success: done });
     } catch (error) {
       res.status(500).json({ error: "Failed to remove trip." });
+    }
+  });
+
+  // 2.5 Active 5-Day Weather Intelligence Service
+  app.get("/api/weather", async (req, res) => {
+    try {
+      const destination = (req.query.destination as string) || "bengaluru";
+      const weatherData = await getWeatherForecast(destination);
+      res.json(weatherData);
+    } catch (error: any) {
+      console.error("Weather service failure:", error);
+      res.status(500).json({ error: "Failed to retrieve active weather forecast: " + error.message });
     }
   });
 

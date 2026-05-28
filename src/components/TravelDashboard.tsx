@@ -2,6 +2,7 @@ import React from 'react';
 import { motion } from 'motion/react';
 import { LayoutDashboard, Bookmark, DollarSign, Clock, Activity, ArrowRight, User } from 'lucide-react';
 import { SavedTrip, UserPreferences } from '../types';
+import WeatherWidget from './WeatherWidget';
 
 interface TravelDashboardProps {
   savedTrips: SavedTrip[];
@@ -77,6 +78,9 @@ export default function TravelDashboard({
           </div>
         </div>
       </div>
+
+      {/* 5-Day Interactive Weather Intelligence Area */}
+      <WeatherWidget savedTrips={savedTrips} />
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         
