@@ -2,7 +2,8 @@
   "name": "Tripverse",
   "description": "Plan Smarter. Travel Better. A luxury travel planner and intelligent companion featuring personalized day-wise itinerary generation, weather updates, hotel matches, and integrated concierge services.",
   "requestFramePermissions": [
-    "geolocation"
+    "geolocation",
+    "microphone"
   ],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }
