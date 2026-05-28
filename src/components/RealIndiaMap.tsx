@@ -79,6 +79,87 @@ export default function RealIndiaMap({
 
     mapInstanceRef.current = map;
 
+    // Direct explore callback via map
+    (window as any).exploreFromMap = (destName: string) => {
+      const match = allDestinations.find(d => d.destination === destName);
+      if (match && onSelectDestination) {
+        onSelectDestination(match);
+      }
+    };
+
+    // Helper variables for supreme travel info
+    const getNearestTransport = (dest: string): string => {
+      const d = dest.toLowerCase();
+      if (d.includes("taj")) return "✈️ Agra Air Base (12km) / 🚉 Agra Cantt Junction";
+      if (d.includes("mysore")) return "✈️ Mysore Airport (YMY) / 🚉 Mysuru Central Rail";
+      if (d.includes("hampi")) return "✈️ Vidyanagar (35km) / 🚉 Hospet Junction";
+      if (d.includes("kerala") || d.includes("alappuzha")) return "✈️ Cochin Int'l Airport (80km) / 🚉 Alappuzha Station";
+      if (d.includes("goa")) return "✈️ Manohar Int'l Mopa / 🚉 Margao Junction Station";
+      if (d.includes("jaipur")) return "✈️ Sanganer Int'l Airport (JAI) / 🚉 Jaipur Junction";
+      if (d.includes("leh") || d.includes("ladakh")) return "✈️ Kushok Bakula Rimpochee Airport (LEH)";
+      if (d.includes("kashmir")) return "✈️ Srinagar Airport (SXR) / 🚉 Banihal Railway";
+      if (d.includes("golden") || d.includes("amritsar")) return "✈️ Sri Guru Ram Dass Jee Airport / 🚉 Amritsar Cantt";
+      if (d.includes("minar") || d.includes("qutub") || d.includes("red fort") || d.includes("delhi")) return "✈️ Indira Gandhi Int'l (DEL) / 🚉 New Delhi Hub";
+      if (d.includes("konark")) return "✈️ Biju Patnaik Airport (BHU) / 🚉 Puri Railway Station";
+      if (d.includes("meenakshi") || d.includes("madurai")) return "✈️ Madurai Airport (IXM) / 🚉 Madurai Central";
+      if (d.includes("ajanta") || d.includes("ellora")) return "✈️ Aurangabad Airport (IXU) / 🚉 Aurangabad Junction";
+      if (d.includes("coorg")) return "✈️ Kannur Airport (CNN) / 🚉 Mysore Cantt Rail";
+      if (d.includes("ooty")) return "✈️ Coimbatore Int'l (CJB) / 🚉 Udhagamandalam Steam Rail";
+      if (d.includes("munnar")) return "✈️ Cochin Int'l (COK) / 🚉 Aluva Rail Terminal";
+      return "✈️ Local Regional Airport Hub & Express Railway Links";
+    };
+
+    const getDistanceEstimate = (dest: string): string => {
+      const d = dest.toLowerCase();
+      if (d.includes("taj")) return "🚗 5.2 km from Agra Cantt Station";
+      if (d.includes("mysore")) return "🚗 1.8 km from City Bus Stand";
+      if (d.includes("hampi")) return "🚗 14 km from Hospet Junction Railway";
+      if (d.includes("kerala") || d.includes("alappuzha")) return "🚗 4.5 km from Alappuzha Beach";
+      if (d.includes("goa")) return "🚗 12 km from Madgaon Hub";
+      if (d.includes("jaipur")) return "🚗 8.3 km from Jaipur Junction";
+      if (d.includes("leh") || d.includes("ladakh")) return "🚗 3 km from Leh Palace";
+      if (d.includes("kashmir")) return "🚗 6.8 km from Lal Chowk Srinagar";
+      if (d.includes("golden") || d.includes("amritsar")) return "🚗 2.1 km from Amritsar Junction";
+      if (d.includes("minar") || d.includes("qutub")) return "🚗 0.5 km from Qutub Minar Metro";
+      if (d.includes("red fort")) return "🚗 1.2 km from Chandni Chowk Metro";
+      if (d.includes("konark")) return "🚗 35 km from Puri Railway Terminal";
+      if (d.includes("meenakshi") || d.includes("madurai")) return "🚗 0.9 km from Madurai Junction";
+      if (d.includes("ajanta") || d.includes("ellora")) return "🚗 28 km from Aurangabad Central";
+      if (d.includes("coorg")) return "🚗 82 km from Subrahmanya Road Rail";
+      if (d.includes("ooty")) return "🚗 1.5 km from Ooty Botanical Garden";
+      if (d.includes("munnar")) return "🚗 2.2 km from Munnar Headworks Dam";
+      return "🚗 4.5 km from Nearest Transit Hub";
+    };
+
+    const getAiRecommendation = (dest: string): string => {
+      const d = dest.toLowerCase();
+      if (d.includes("taj")) return "✨ AI Recommendation: View from Mehtab Bagh at Sunset to avoid crowd congestion.";
+      if (d.includes("mysore")) return "✨ AI Recommendation: Weekend illumination of 97,000 bulbs starts exactly at 7:00 PM.";
+      if (d.includes("hampi")) return "✨ AI Recommendation: Hire a coracle boat at Sanapur Lake for dramatic basalt scenery.";
+      if (d.includes("kerala")) return "✨ AI Recommendation: Pre-book dynamic overnight Kettuvallam houseboats during October dry spell.";
+      if (d.includes("goa")) return "✨ AI Recommendation: Head to Galgibaga beach to spot protected Olive Ridley turtle sanctuaries.";
+      if (d.includes("jaipur")) return "✨ AI Recommendation: Visit Stepwell Panna Meena ka Kund at sunrise for pure geometric shots.";
+      if (d.includes("leh")) return "✨ AI Recommendation: Acclimatize for 24 hours inside Leh bazaar before high altitude passes.";
+      if (d.includes("kashmir")) return "✨ AI Recommendation: Try a local saffron Kehwa tea at a floating market stall on Dal Lake.";
+      if (d.includes("golden")) return "✨ AI Recommendation: Relish the overnight community Langar kitchen, feeding 100,000 daily.";
+      if (d.includes("konark")) return "✨ AI Recommendation: Stand between wheels of Konark's sun chariot to calculate time using sundial shadows.";
+      if (d.includes("meenakshi")) return "✨ AI Recommendation: Attend the vibrant Night Ceremony starting precisely at 9:00 PM.";
+      if (d.includes("ajanta")) return "✨ AI Recommendation: Cave 1 houses pristine Mahajanaka Jataka paintings. Bring high lumens flashlights.";
+      if (d.includes("coorg")) return "✨ AI Recommendation: Visit Golden Temple Dubare forest early to see morning elephant bathing.";
+      if (d.includes("ooty")) return "✨ AI Recommendation: Catch the Nilgiri Toy Train steam engine up to Coonoor gorge views.";
+      if (d.includes("munnar")) return "✨ AI Recommendation: Walk through Lockhart Tea factory museum to see 150 years of dry-sorting machinery.";
+      return "✨ AI Recommendation: Explore early morning to capture majestic warm photographic light.";
+    };
+
+    const getWeatherOverlay = (dest: string): string => {
+      const d = dest.toLowerCase();
+      if (d.includes("leh") || d.includes("ladakh")) return "❄️ 8°C Cold Breeze";
+      if (d.includes("kashmir")) return "☁️ 14°C Overcast / Kehwa";
+      if (d.includes("munnar") || d.includes("coorg") || d.includes("ooty")) return "🍃 19°C Cool Fog";
+      if (d.includes("goa") || d.includes("kerala")) return "☀️ 31°C Tropical Breeze";
+      return "☀️ 28°C Clear Skies";
+    };
+
     // Render Pin Markers
     allDestinations.forEach((dest) => {
       if (!dest.coordinates) return;
@@ -107,22 +188,48 @@ export default function RealIndiaMap({
 
       const marker = window.L.marker(dest.coordinates, { icon: customIcon }).addTo(map);
 
-      // Creative Luxury Popup with image preview
+      // Creative Luxury Airbnb/Google Travel Style Popup
       const popupHtml = `
-        <div class="p-2 select-none w-52 font-sans text-slate-800 space-y-2">
-          <div class="relative h-24 rounded-lg overflow-hidden bg-slate-100">
+        <div class="p-0 select-none w-64 rounded-xl overflow-hidden font-sans text-slate-800 bg-white shadow-2xl">
+          <div class="relative h-32 w-full bg-slate-100">
             <img src="${dest.image}" class="w-full h-full object-cover" />
-            <span class="absolute top-1 left-1 bg-black/60 text-white text-[8px] font-bold uppercase tracking-wider px-2 py-0.5 rounded">
+            <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
+            <span class="absolute top-2 left-2 bg-orange-600/90 text-white text-[8px] font-black uppercase tracking-widest px-2.5 py-1 rounded">
               ${dest.tag}
             </span>
-          </div>
-          <div class="space-y-1">
-            <h4 class="font-bold text-xs text-slate-900 leading-tight">${dest.destination}</h4>
-            <div class="flex items-center justify-between text-[10px] text-slate-500 font-semibold">
-              <span>⭐ ${dest.rating || 4.8}</span>
-              <span>₹${dest.budget.toLocaleString('en-IN')} Est</span>
+            <span class="absolute top-2 right-2 bg-slate-900/80 text-white text-[8px] font-mono px-2 py-1 rounded-md">
+              ${getWeatherOverlay(dest.destination)}
+            </span>
+            <div class="absolute bottom-2 left-2 right-2">
+              <h4 class="font-extrabold text-[13px] text-white leading-tight drop-shadow-sm">${dest.destination}</h4>
             </div>
-            <p class="text-[9px] text-slate-600 line-clamp-2 leading-tight">${dest.description}</p>
+          </div>
+          <div class="p-3 space-y-2 bg-white">
+            <div class="flex items-center justify-between text-[10px] text-slate-500 font-bold border-b border-slate-100 pb-1.5">
+              <span class="text-amber-500 flex items-center gap-0.5">⭐ ${dest.rating || 4.9}</span>
+              <span class="text-orange-600 font-extrabold italic">₹${dest.budget.toLocaleString('en-IN')} Est</span>
+            </div>
+            
+            <p class="text-[10px] text-slate-600 leading-normal line-clamp-2">${dest.description}</p>
+            
+            <div class="space-y-1 bg-slate-50 p-2 rounded-lg border border-slate-100 text-[9px] font-medium text-slate-500">
+              <div class="flex items-center gap-1">
+                <span>📍</span>
+                <span class="truncate font-bold text-slate-700">${getNearestTransport(dest.destination)}</span>
+              </div>
+              <div class="flex items-center gap-1 mt-1 border-t border-slate-200/50 pt-1 text-[9px]">
+                <span>🚘</span>
+                <span class="truncate font-semibold text-slate-600">${getDistanceEstimate(dest.destination)}</span>
+              </div>
+            </div>
+
+            <div class="bg-amber-50/70 border border-amber-100 rounded-lg p-2 text-[9px] leading-relaxed text-amber-900 font-bold italic">
+              ${getAiRecommendation(dest.destination)}
+            </div>
+
+            <button onclick="window.exploreFromMap('${dest.destination.replace(/'/g, "\\'")}')" class="w-full text-center mt-2.5 bg-blue-600 hover:bg-blue-500 text-white text-[10px] py-2 rounded-lg font-black uppercase tracking-wider transition cursor-pointer border-none outline-none shadow-sm shadow-blue-600/10">
+              Explore Destination
+            </button>
           </div>
         </div>
       `;

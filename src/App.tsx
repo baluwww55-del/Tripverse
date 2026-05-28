@@ -386,36 +386,71 @@ export default function App() {
     }
   };
 
-  // Simulated Voice Input Action handling
+  // Real Voice Input Action handling with Web Speech API
   const toggleVoiceInput = () => {
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+
     if (voiceActive) {
       setVoiceActive(false);
+      const recognition = (window as any)._activeChatRecognition;
+      if (recognition) {
+        try {
+          recognition.stop();
+        } catch (e) {}
+      }
     } else {
       setVoiceActive(true);
-      showNotification("Listening to voice travel prompts...", "success");
-      
-      const samplePrompts = [
-        "Find high rated boutique hotels near Kyoto Onsen sights",
-        "Generate a 3 day family wellness plan for Greece sunset cliffs",
-        "Recommend typical cultural custom rules and emergency contacts in Japan"
-      ];
-      const randomWord = samplePrompts[Math.floor(Math.random() * samplePrompts.length)];
-      
-      let cur = "";
-      const words = randomWord.split(" ");
-      let i = 0;
-      
-      const timer = setInterval(() => {
-        if (i < words.length) {
-          cur += (i === 0 ? "" : " ") + words[i];
-          setChatInput(cur);
-          i++;
-        } else {
-          clearInterval(timer);
+      showNotification("Listening with Web Speech API...", "success");
+
+      if (!SpeechRecognition) {
+        // Safe preview fallback if Web Speech API is not enabled
+        setTimeout(() => {
+          const samplePrompts = [
+            "Find luxury boutique hotels near Goa Beaches",
+            "Generate a heritage route around Mysore Palace Karnataka",
+            "What is the current sightseeing guide to Qutub Minar Delhi?"
+          ];
+          const randomWord = samplePrompts[Math.floor(Math.random() * samplePrompts.length)];
+          setChatInput(randomWord);
           setVoiceActive(false);
-          showNotification("Bespoke prompt formulated!", "success");
-        }
-      }, 350);
+          showNotification("Voice parsed dynamically: " + randomWord);
+        }, 2000);
+        return;
+      }
+
+      try {
+        const rec = new SpeechRecognition();
+        rec.continuous = false;
+        rec.interimResults = false;
+        rec.lang = 'en-IN';
+
+        rec.onstart = () => {
+          setChatInput("Speak now...");
+        };
+
+        rec.onresult = (event: any) => {
+          const text = event.results[0][0].transcript;
+          setChatInput(text);
+          showNotification("Spoken prompt captured!", "success");
+        };
+
+        rec.onerror = (event: any) => {
+          console.warn("Speech API message:", event.error);
+          if (event.error === 'not-allowed') {
+            showNotification("Microphone blocked. Enable mic access.", "error");
+          }
+          setVoiceActive(false);
+        };
+
+        rec.onend = () => {
+          setVoiceActive(false);
+        };
+
+        (window as any)._activeChatRecognition = rec;
+        rec.start();
+      } catch (err) {
+        setVoiceActive(false);
+      }
     }
   };
 

@@ -28,10 +28,10 @@ export default function ConciergeChat({
 }: ConciergeChatProps) {
 
   const quickPrompts = [
-    "Tell me the most famous traditional restaurants in Kyoto.",
-    "Draft a 4-day active culture trip structure.",
-    "Recommend typical emergency traveler guidelines.",
-    "What are some beautiful beach ryokans?"
+    "Tell me the best luxury beach resorts in Goa.",
+    "Draft a 4-day heritage tour structure for Jaipur Forts.",
+    "What is the recommended tourist guide to Mysore Palace?",
+    "Suggest cultural guidelines for visiting historical shrines in Varanasi."
   ];
 
   return (

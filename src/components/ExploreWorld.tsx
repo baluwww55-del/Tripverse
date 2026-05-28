@@ -46,22 +46,22 @@ export default function ExploreWorld({
             
             <div className="p-6 sm:w-1/2 flex flex-col justify-between space-y-4">
               <div className="space-y-2">
-                <div className="flex justify-between items-center">
-                  <span className="text-[10px] bg-red-50 text-red-600 border border-red-100 font-extrabold px-2.5 py-1 rounded-full uppercase">
-                    ⭐ 4.9 Heritage Spot
+                <div className="flex justify-between items-center sm:gap-2">
+                  <span className="text-[10px] bg-red-50 text-red-600 border border-red-100 font-extrabold px-2.5 py-1 rounded-full uppercase shrink-0">
+                    ⭐ {spot.rating || '4.9'} {spot.tag}
                   </span>
-                  <span className="text-[10px] font-bold text-slate-400 font-sans">Est. Price Range</span>
+                  <span className="text-[10px] text-slate-500 font-bold truncate">{spot.location}</span>
                 </div>
                 <h3 className="text-xl font-bold text-slate-900 leading-tight">{spot.destination}</h3>
-                <p className="text-xs text-slate-600 leading-relaxed font-medium">
-                  Immerse yourself in spectacular landscapes. This curated selection tags a flawless pairing of {spot.style.toLowerCase()} for the perfect vacation.
+                <p className="text-xs text-slate-600 leading-relaxed font-semibold">
+                  {spot.description || `Immerse yourself in spectacular Indian landscapes during this bespoke travel experience with unique style traits.`}
                 </p>
               </div>
 
               <div className="pt-3 border-t border-slate-100 space-y-3">
                 <div className="flex justify-between items-center text-xs text-slate-500">
                   <span className="font-medium">Average Weather Forecast:</span>
-                  <span className="font-bold text-slate-800">Spring Mild Clear (22°C)</span>
+                  <span className="font-extrabold text-slate-800">{spot.weather || 'Pleasant Core (24°C)'}</span>
                 </div>
                 <div className="flex justify-between items-center text-xs text-slate-500">
                   <span className="font-medium">Curated Budget Guideline:</span>

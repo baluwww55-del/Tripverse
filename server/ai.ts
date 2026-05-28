@@ -355,6 +355,75 @@ const MOCK_DESTINATIONS: Record<string, {
   }
 };
 
+export function generateSimulatedItinerary(
+  destination: string,
+  daysCount: number,
+  budget: number,
+  userPrefs: UserPreferences
+): {
+  weatherSummary: string;
+  budgetBreakdown: { flightsEstimated: number; hotelsEstimated: number; activitiesEstimated: number; dailyAllowance: number };
+  days: DayItinerary[];
+  suggestedHotels: any[];
+  suggestedFlights: any[];
+  travelTips: string[];
+} {
+  const normDest = destination.toLowerCase().trim();
+  console.log(`[AI Simulator] Formulating simulated high-fidelity plans for: ${destination}`);
+  
+  // Choose appropriate fallback base
+  const baseKey = Object.keys(MOCK_DESTINATIONS).find(k => normDest.includes(k)) || 'agra';
+  const base = MOCK_DESTINATIONS[baseKey];
+
+  const days: DayItinerary[] = [];
+  const themes = [
+    "Royal Heritage & Iconic Sights",
+    "Hidden Local Trails & Culture",
+    "Scenic Highpoints & Regional Flavors",
+    "Bazaars & Artisan Craft Discovery",
+    "Sunset Splendors & Traditional Dinner"
+  ];
+
+  for (let d = 1; d <= daysCount; d++) {
+    const theme = themes[(d - 1) % themes.length];
+    const startIdx = (d - 1) * 2;
+    const act1 = base.activities[startIdx % base.activities.length];
+    const act2 = base.activities[(startIdx + 1) % base.activities.length];
+    const act3 = `Immersive regional food walk sampling local delicacies with culinary specialists of ${destination}`;
+
+    days.push({
+      day: d,
+      theme: theme,
+      activities: [
+        { time: "09:30 AM", title: act1, description: `Heritage exploration matching your travel profile, customized based on preferred activity levels.`, cost: userPrefs.budgetLevel === 'budget' ? 300 : 1500, location: `Main Sector, ${destination}`, rating: 4.9 },
+        { time: "02:00 PM", title: act2, description: `Detailed afternoon immersion with professional regional guides. Accommodates dietary requirement: ${userPrefs.dietary}.`, cost: userPrefs.budgetLevel === 'budget' ? 200 : 1200, location: `Heritage District, ${destination}`, rating: 4.8 },
+        { time: "06:30 PM", title: act3, description: `Splendid evening sunset watch and a traditional local sit-down dining session with heritage recipes.`, cost: userPrefs.budgetLevel === 'budget' ? 500 : 2200, location: `Sunset Overlook, ${destination}`, rating: 4.8 }
+      ]
+    });
+  }
+
+  // Adjust price estimations based on budget inputs (fully Indian Rupees)
+  const budgetFactor = userPrefs.budgetLevel === 'budget' ? 0.6 : userPrefs.budgetLevel === 'luxury' ? 1.8 : 1.0;
+  const flightEst = Math.round((base.flights[0]?.price || 6000) * budgetFactor);
+  const hotelEst = Math.round((base.hotels[0]?.price || 8000) * budgetFactor * daysCount * 0.7);
+  const actEst = Math.round(2500 * budgetFactor * daysCount);
+  const dailyAllow = Math.round((budget - (flightEst + hotelEst + actEst)) / daysCount);
+
+  return {
+    weatherSummary: base.weather,
+    budgetBreakdown: {
+      flightsEstimated: flightEst,
+      hotelsEstimated: hotelEst,
+      activitiesEstimated: actEst,
+      dailyAllowance: dailyAllow > 0 ? dailyAllow : Math.round(1800 * budgetFactor)
+    },
+    days,
+    suggestedHotels: base.hotels.map(h => ({ ...h, price: Math.round(h.price * budgetFactor) })),
+    suggestedFlights: base.flights.map(f => ({ ...f, price: Math.round(f.price * budgetFactor) })),
+    travelTips: base.tips
+  };
+}
+
 export async function generateAILineItinerary(
   destination: string,
   daysCount: number,
@@ -372,60 +441,7 @@ export async function generateAILineItinerary(
   const client = getAIClient();
 
   if (!client) {
-    // Return stunning dynamic simulated response based on the destination
-    console.log(`[AI Simulator] Formulating simulated high-fidelity plans for: ${destination}`);
-    
-    // Choose appropriate fallback base
-    const baseKey = Object.keys(MOCK_DESTINATIONS).find(k => normDest.includes(k)) || 'agra';
-    const base = MOCK_DESTINATIONS[baseKey];
-
-    const days: DayItinerary[] = [];
-    const themes = [
-      "Royal Heritage & Iconic Sights",
-      "Hidden Local Trails & Culture",
-      "Scenic Highpoints & Regional Flavors",
-      "Bazaars & Artisan Craft Discovery",
-      "Sunset Splendors & Traditional Dinner"
-    ];
-
-    for (let d = 1; d <= daysCount; d++) {
-      const theme = themes[(d - 1) % themes.length];
-      const startIdx = (d - 1) * 2;
-      const act1 = base.activities[startIdx % base.activities.length];
-      const act2 = base.activities[(startIdx + 1) % base.activities.length];
-      const act3 = `Immersive regional food walk sampling local delicacies with culinary specialists of ${destination}`;
-
-      days.push({
-        day: d,
-        theme: theme,
-        activities: [
-          { time: "09:30 AM", title: act1, description: `Heritage exploration matching your travel profile, customized based on preferred activity levels.`, cost: userPrefs.budgetLevel === 'budget' ? 300 : 1500, location: `Main Sector, ${destination}`, rating: 4.9 },
-          { time: "02:00 PM", title: act2, description: `Detailed afternoon immersion with professional regional guides. Accommodates dietary requirement: ${userPrefs.dietary}.`, cost: userPrefs.budgetLevel === 'budget' ? 200 : 1200, location: `Heritage District, ${destination}`, rating: 4.8 },
-          { time: "06:30 PM", title: act3, description: `Splendid evening sunset watch and a traditional local sit-down dining session with heritage recipes.`, cost: userPrefs.budgetLevel === 'budget' ? 500 : 2200, location: `Sunset Overlook, ${destination}`, rating: 4.8 }
-        ]
-      });
-    }
-
-    // Adjust price estimations based on budget inputs (fully Indian Rupees)
-    const budgetFactor = userPrefs.budgetLevel === 'budget' ? 0.6 : userPrefs.budgetLevel === 'luxury' ? 1.8 : 1.0;
-    const flightEst = Math.round((base.flights[0]?.price || 6000) * budgetFactor);
-    const hotelEst = Math.round((base.hotels[0]?.price || 8000) * budgetFactor * daysCount * 0.7);
-    const actEst = Math.round(2500 * budgetFactor * daysCount);
-    const dailyAllow = Math.round((budget - (flightEst + hotelEst + actEst)) / daysCount);
-
-    return {
-      weatherSummary: base.weather,
-      budgetBreakdown: {
-        flightsEstimated: flightEst,
-        hotelsEstimated: hotelEst,
-        activitiesEstimated: actEst,
-        dailyAllowance: dailyAllow > 0 ? dailyAllow : Math.round(1800 * budgetFactor)
-      },
-      days,
-      suggestedHotels: base.hotels.map(h => ({ ...h, price: Math.round(h.price * budgetFactor) })),
-      suggestedFlights: base.flights.map(f => ({ ...f, price: Math.round(f.price * budgetFactor) })),
-      travelTips: base.tips
-    };
+    return generateSimulatedItinerary(destination, daysCount, budget, userPrefs);
   }
 
   // Real Gemini API call with structured JSON schema
@@ -636,7 +652,7 @@ export async function generateAILineItinerary(
   } catch (error) {
     console.error("Gemini real generation failed, returning simulated payload instead:", error);
     // Silent fall back to simulated to make sure app performs 100% reliably
-    return generateAILineItinerary(destination, daysCount, budget, userPrefs);
+    return generateSimulatedItinerary(destination, daysCount, budget, userPrefs);
   }
 }
 

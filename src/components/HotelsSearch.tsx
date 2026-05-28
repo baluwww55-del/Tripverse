@@ -117,7 +117,7 @@ export default function HotelsSearch({
               <div className="p-4 border-t border-slate-100 flex justify-between items-center bg-slate-50">
                 <div className="text-left">
                   <span className="text-[9px] text-slate-400 uppercase font-black block leading-none">Starting from</span>
-                  <span className="text-base font-extrabold text-blue-600">${item.price}<span className="text-slate-500 font-medium text-xs">/night</span></span>
+                  <span className="text-base font-extrabold text-blue-600">₹{item.price.toLocaleString('en-IN')}<span className="text-slate-500 font-medium text-xs">/night</span></span>
                 </div>
                 <button 
                   onClick={() => runSimulatedBooking('hotel', item.name)}

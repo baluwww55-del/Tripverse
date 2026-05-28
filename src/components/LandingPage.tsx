@@ -23,6 +23,7 @@ import {
 import { UserPreferences } from '../types';
 import { allDestinations, PopularSpot, sampleHotels } from '../data/travelData';
 import RealIndiaMap from './RealIndiaMap';
+import SearchAndVoiceAssistant from './SearchAndVoiceAssistant';
 
 interface LandingPageProps {
   userPrefs: UserPreferences;
@@ -196,126 +197,11 @@ export default function LandingPage({
   return (
     <div className="space-y-12 pb-20 text-slate-900 font-sans">
       
-      {/* 1. PREMIUM GLASS STICKY TOP SEARCH BAR (VISIBLE ALWAYS ONCE SCROLLED OVER) */}
-      <AnimatePresence>
-        {scrolledPastHero && (
-          <motion.div 
-            initial={{ opacity: 0, y: -40 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -40 }}
-            transition={{ type: 'spring', stiffness: 260, damping: 20 }}
-            className="fixed top-20 left-1/2 -translate-x-1/2 w-[90%] max-w-2xl z-[900]"
-          >
-            <div className="bg-white/80 backdrop-blur-xl rounded-[30px] p-2 border border-orange-200/30 shadow-2xl shadow-orange-950/10 flex items-center justify-between gap-2.5">
-              <div className="flex-1 flex items-center gap-2 pl-4">
-                <Search className="h-4 w-4 text-orange-600 shrink-0" />
-                <input 
-                  type="text" 
-                  placeholder="Ask Tripverse: Taj Mahal, Leh Ladakh, Munnar, Goa..." 
-                  className="bg-transparent border-0 outline-none text-xs w-full text-slate-800 font-bold placeholder-slate-400"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  onFocus={() => setIsSearchFocused(true)}
-                />
-                {searchQuery && (
-                  <button onClick={() => setSearchQuery('')} className="p-1 hover:bg-slate-100 rounded-full cursor-pointer">
-                    <X className="h-3 w-3 text-slate-400" />
-                  </button>
-                )}
-              </div>
-              
-              <div className="flex items-center gap-1.5 pr-2">
-                <button 
-                  onClick={handleStartVoiceSearch}
-                  className="p-2 hover:bg-orange-50 rounded-full cursor-pointer text-orange-600 transition"
-                  title="Voice Search"
-                >
-                  <Mic className="h-4.5 w-4.5" />
-                </button>
-                <button 
-                  onClick={() => triggerInstantPlan(searchQuery || "Taj Mahal, Agra", 4, 65000)}
-                  className="bg-gradient-to-r from-orange-600 to-amber-500 text-white text-[10px] font-extrabold tracking-wider uppercase px-5 py-2.5 rounded-full shadow-lg shadow-orange-500/20 hover:scale-[1.02] active:scale-[0.98] cursor-pointer transition-all"
-                >
-                  Explore
-                </button>
-              </div>
-            </div>
-
-            {/* Sticky Dropdown Overlay */}
-            <AnimatePresence>
-              {isSearchFocused && (
-                <motion.div 
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: 10 }}
-                  className="absolute top-16 left-0 right-0 bg-white/95 backdrop-blur-lg rounded-2xl border border-slate-200 shadow-2xl p-4 space-y-3 max-h-[380px] overflow-y-auto"
-                >
-                  {searchSuggestions.length > 0 ? (
-                    <div className="space-y-2">
-                      <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider flex items-center gap-1.5"><TrendingUp className="h-3 w-3" /> Attractions Found</span>
-                      {searchSuggestions.map((dest, idx) => (
-                        <button 
-                          key={idx}
-                          role="button"
-                          tabIndex={0}
-                          onClick={() => handleSelectSuggestion(dest.destination, dest.duration, dest.budget)}
-                          className="w-full flex items-center justify-between p-2 rounded-xl hover:bg-slate-50 text-left transition"
-                        >
-                          <div className="flex items-center gap-2.5">
-                            <img src={dest.image} class="w-10 h-10 rounded-lg object-cover" />
-                            <div>
-                              <div className="text-xs font-bold text-slate-900">{dest.destination}</div>
-                              <div className="text-[10px] text-slate-500">{dest.location}</div>
-                            </div>
-                          </div>
-                          <span className="text-[10px] bg-sky-50 text-sky-700 font-extrabold px-2.5 py-1 rounded-full uppercase">{dest.tag}</span>
-                        </button>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="space-y-3">
-                      <div className="space-y-1.5">
-                        <span className="text-[10px] uppercase font-semibold text-slate-500 tracking-wider">Recent Searches</span>
-                        <div className="flex flex-wrap gap-1.5">
-                          {recentSearches.map((term, i) => (
-                            <button 
-                              key={i} 
-                              onClick={() => handleSelectSuggestion(term)}
-                              className="px-3 py-1 bg-slate-50 hover:bg-slate-100 rounded-full text-slate-700 text-[10px] font-semibold border border-slate-200 cursor-pointer transition flex items-center gap-1"
-                            >
-                              <Clock className="h-3 w-3 text-slate-400" />
-                              <span>{term}</span>
-                            </button>
-                          ))}
-                        </div>
-                      </div>
-
-                      <div className="space-y-1.5">
-                        <span className="text-[10px] uppercase font-semibold text-slate-500 tracking-wider">Trending in Indian Tourism</span>
-                        <div className="flex flex-wrap gap-1.5">
-                          {["Leh Ladakh", "Kerala Backwaters", "Jaipur Forts", "Hampi", "Kashmir"].map((term, i) => (
-                            <button 
-                              key={i} 
-                              onClick={() => handleSelectSuggestion(term)}
-                              className="px-3 py-1 bg-amber-50 hover:bg-amber-100 rounded-full text-amber-800 text-[10px] font-bold border border-amber-200 cursor-pointer transition"
-                            >
-                              🇮🇳 {term}
-                            </button>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-                  )}
-                  <div className="pt-2.5 border-t border-slate-100 flex justify-between items-center text-[9px] text-slate-400 font-bold">
-                    <span>Search airports, rail hubs or cities</span>
-                    <button onClick={() => setIsSearchFocused(false)} className="hover:text-slate-600">Close Panel</button>
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {/* 1. PREMIUM GLASS STICKY TOP SEARCH BAR */}
+      <SearchAndVoiceAssistant 
+        sticky={true} 
+        onSearchSelect={(destination) => handleSelectSuggestion(destination)}
+      />
 
       {/* 2. MAJESTIC HERO TRAVEL BANNER */}
       <div className="relative rounded-3xl overflow-hidden shadow-2xl bg-slate-950 p-6 sm:p-12 lg:p-20 flex flex-col justify-end min-h-[500px] mt-2 group border border-slate-800">
@@ -376,93 +262,13 @@ export default function LandingPage({
             Discover a country rich in ancient monuments, pristine shorelines, towering Himalayan massifs, and dynastic palaces. Beautifully aligned by our multi-agent travel suite and personalized to your unique style.
           </p>
 
-          {/* Premium Glass Center Search Bar (Hovering) */}
-          <div className="relative max-w-xl bg-white/10 backdrop-blur-md border border-white/20 p-2 rounded-[30px] shadow-2xl flex flex-col sm:flex-row gap-2 transition duration-300 hover:border-white/35">
-            <div className="flex-1 flex items-center gap-2.5 px-4">
-              <MapPin className="h-5 w-5 text-orange-400 shrink-0" />
-              <input 
-                type="text" 
-                placeholder="Where in India is your next dream escape?" 
-                className="bg-transparent border-0 outline-none text-xs w-full text-white placeholder-slate-300 font-bold focus:ring-0"
-                value={searchQuery}
-                onFocus={() => setIsSearchFocused(true)}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
-              {searchQuery && (
-                <button onClick={() => setSearchQuery('')} className="p-1 hover:bg-white/10 rounded-full cursor-pointer">
-                  <X className="h-3.5 w-3.5 text-slate-300" />
-                </button>
-              )}
-            </div>
-
-            <div className="flex gap-1">
-              <button 
-                onClick={handleStartVoiceSearch}
-                className="p-3 bg-white/10 hover:bg-white/20 text-white rounded-full transition cursor-pointer"
-                title="Voice Assistant Search"
-              >
-                <Mic className="h-4.5 w-4.5" />
-              </button>
-              <button 
-                onClick={() => triggerInstantPlan(searchQuery || "Taj Mahal, Agra", 4, 75000)}
-                className="bg-gradient-to-r from-orange-600 via-amber-500 to-blue-600 text-white font-extrabold text-xs px-6 py-3 rounded-full flex items-center gap-1.5 hover:scale-[1.02] active:scale-[0.98] transition cursor-pointer"
-              >
-                <span>Search</span>
-                <ArrowRight className="h-4 w-4" />
-              </button>
-            </div>
-
-            {/* Float autocomplete suggestion popover on hero banner */}
-            <AnimatePresence>
-              {isSearchFocused && !scrolledPastHero && (
-                <motion.div 
-                  initial={{ opacity: 0, y: 15 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: 15 }}
-                  className="absolute top-18 left-0 right-0 bg-white shadow-2xl rounded-2xl border border-slate-200 p-4 z-50 text-slate-800 space-y-3 max-h-[290px] overflow-y-auto"
-                >
-                  {searchSuggestions.length > 0 ? (
-                    <div className="space-y-1">
-                      <span className="text-[9px] uppercase font-bold text-slate-400 tracking-wider">Matched Places</span>
-                      {searchSuggestions.map((dest, i) => (
-                        <button 
-                          key={i}
-                          onClick={() => handleSelectSuggestion(dest.destination)}
-                          className="w-full flex items-center gap-3 p-1.5 rounded-lg hover:bg-slate-50 text-left transition"
-                        >
-                          <img src={dest.image} className="w-8 h-8 rounded object-cover" />
-                          <div>
-                            <div className="text-xs font-bold text-slate-800">{dest.destination}</div>
-                            <div className="text-[10px] text-slate-500">{dest.location}</div>
-                          </div>
-                        </button>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="space-y-3">
-                      <div>
-                        <span className="text-[9px] uppercase font-bold text-slate-400 tracking-wider flex items-center gap-1"><TrendingUp className="h-3 w-3" /> Trending Indian Vacations</span>
-                        <div className="flex flex-wrap gap-1.5 mt-1.5">
-                          {["Taj Mahal", "Goa Beaches", "Munnar", "Kerala Backwaters", "Kashmir"].map((s, idx) => (
-                            <button 
-                              key={idx}
-                              onClick={() => handleSelectSuggestion(s)}
-                              className="px-3 py-1 text-[10px] bg-slate-100 hover:bg-slate-200 rounded-full font-bold cursor-pointer text-slate-700 transition"
-                            >
-                              🏝️ {s}
-                            </button>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-                  )}
-                  <div className="pt-2 border-t text-[9px] text-slate-400 font-bold flex justify-between">
-                    <span>Press search to run AI travel generator</span>
-                    <button onClick={() => setIsSearchFocused(false)} className="hover:text-slate-600">Close</button>
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
+          {/* Premium Glass Center Search Bar */}
+          <div className="w-full max-w-xl">
+            <SearchAndVoiceAssistant 
+              sticky={false} 
+              onSearchSelect={(destination) => handleSelectSuggestion(destination)}
+              placeholder="Where in India is your next dream escape?"
+            />
           </div>
         </div>
       </div>
