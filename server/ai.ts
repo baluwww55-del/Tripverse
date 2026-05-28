@@ -23,7 +23,7 @@ function getAIClient(): GoogleGenAI | null {
   return aiClient;
 }
 
-// Highly detailed mock fallback data to ensure a seamless playground experience even if keys aren't set
+// Highly detailed mock fallback data focused entirely on incredible Indian tourism destinations
 const MOCK_DESTINATIONS: Record<string, {
   weather: string;
   activities: string[];
@@ -31,51 +31,326 @@ const MOCK_DESTINATIONS: Record<string, {
   flights: any[];
   tips: string[];
 }> = {
-  tokyo: {
-    weather: "Pleasant with clear autumn skies, temperature 16°C - 22°C.",
+  "agra": {
+    weather: "Warm and bright with crystal clear sunrise conditions over Yamuna, 22°C - 32°C.",
     activities: [
-      "Sensō-ji Temple exploration in historic Asakusa.",
-      "Sushi making workshop at Tsukiji Outer Market.",
-      "Spectator viewing of Shibuya Crossing from a high-rise view terrace.",
-      "Anime and retro-tech treasure hunting in Akihabara.",
-      "Tranquil walking through the majestic Meiji Shinto Shrine forested grounds.",
-      "Traditional Kaiseki fine-dining food experience in Ginza."
+      "Sunrise viewing of the majestic Taj Mahal with a local historian.",
+      "Explore the royal red sandstone courtyards of Agra Fort.",
+      "Savor authentic Petha varieties at the old Sadar Bazaar.",
+      "Marvel at the delicate marble inlay works of the Tomb of Itimad-ud-Daulah (Baby Taj).",
+      "Witness sunset reflection of Taj Mahal from Mehtab Bagh gardens across the river."
     ],
     hotels: [
-      { name: "Shinjuku Park View Tower", price: 190, rating: 4.8, location: "Shinjuku, Tokyo", image: "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=400&q=80" },
-      { name: "Asakusa Traditional Ryokan", price: 110, rating: 4.5, location: "Asakusa, Tokyo", image: "https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?auto=format&fit=crop&w=400&q=80" }
+      { name: "The Oberoi Amarvilas (Taj View)", price: 42000, rating: 4.9, location: "Taj East Gate Road, Agra", image: "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=400&q=80" },
+      { name: "Taj Hotel & Convention Centre", price: 9500, rating: 4.7, location: "Fatehabad Road, Agra", image: "https://images.unsplash.com/photo-1522083165195-342750297f05?auto=format&fit=crop&w=400&q=80" }
     ],
     flights: [
-      { carrier: "Japan Airlines", price: 680, duration: "11h 20m", rating: 4.9, logo: "JL" },
-      { carrier: "ANA All Nippon", price: 710, duration: "11h 05m", rating: 4.8, logo: "NH" }
+      { carrier: "Air India (Direct Flight)", price: 6500, duration: "1h 40m", rating: 4.8, logo: "AI" },
+      { carrier: "IndiGo Express Connect", price: 4200, duration: "2h 10m", rating: 4.6, logo: "6E" }
     ],
     tips: [
-      "Purchase a pre-loaded Suica or Pasmo digital transit card for seamless subways.",
-      "Keep standard coins/cash handy, as many smaller food stalls do not receive card payments.",
-      "Always stand on the left side of escalators in Tokyo, leaving the right open for walkers."
+      "Carry minimal items inside the Taj Mahal complex to bypass security lines rapidly.",
+      "Hire only Ministry of Tourism approved guides displaying official ID cards.",
+      "Local language brief: Hindi is widely spoken. Say 'Dhanyabaad' to express gratitude."
     ]
   },
-  paris: {
-    weather: "Soft light breezes with mild scattered showers, temperature 14°C - 19°C.",
+  "bengaluru": {
+    weather: "Extremely pleasant, mild temperate spring climate throughout, 19°C - 26°C.",
     activities: [
-      "Early morning stroll near Champ de Mars to admire Eiffel Tower before crowds arrive.",
-      "Curated guided walkthrough of Musée du Louvre highlighting masterpiece details.",
-      "Artisan croissant and espresso sampling in a cozy Saint-Germain-des-Prés cafe.",
-      "Romantic evening cruise along the River Seine under glowing illumination.",
-      "Breathtaking walking tour up the stairs of Sacré-Cœur in artistic Montmartre."
+      "Morning heritage walk through the lush canopy of Cubbon Park.",
+      "Breakfast at a historic military hotel or filter coffee at CTR Malleshwaram.",
+      "Grand audio tour of Bangalore Palace's royal Tudor-style architecture.",
+      "Interactive technical visit to the Science Museum and aeronautics hangar.",
+      "Indulge in craft local food experiences and botanical walks in Lalbagh."
     ],
     hotels: [
-      { name: "Grand Hôtel Saint-Germain", price: 210, rating: 4.7, location: "Saint-Germain, Paris", image: "https://images.unsplash.com/photo-1502602898657-3e91760cbb34?auto=format&fit=crop&w=400&q=80" },
-      { name: "Montmartre Vista Studio", price: 95, rating: 4.3, location: "Montmartre, Paris", image: "https://images.unsplash.com/photo-1522083165195-342750297f05?auto=format&fit=crop&w=400&q=80" }
+      { name: "The Taj West End", price: 22000, rating: 4.9, location: "Race Course Road, Bengaluru", image: "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=400&q=80" },
+      { name: "ITC Gardenia Luxury Collection", price: 18000, rating: 4.8, location: "Residency Road, Bengaluru", image: "https://images.unsplash.com/photo-1537996194471-e657df975ab4?auto=format&fit=crop&w=400&q=80" }
     ],
     flights: [
-      { carrier: "Air France", price: 540, duration: "8h 15m", rating: 4.7, logo: "AF" },
-      { carrier: "Lufthansa", price: 460, duration: "9h 40m", rating: 4.5, logo: "LH" }
+      { carrier: "Vistara Premium Economy", price: 7800, duration: "2h 15m", rating: 4.8, logo: "UK" },
+      { carrier: "IndiGo Metropol Connect", price: 5200, duration: "2h 30m", rating: 4.6, logo: "6E" }
     ],
     tips: [
-      "Avoid buying individual Metro tickets; purchase a digital Navigo Easy pass on your phone.",
-      "Warmly greet staff with 'Bonjour' upon entering any boutique — it is core etiquette.",
-      "Always book museum entry tickets online at least 3 weeks ahead to secure timeslots."
+      "Utilize Namma Metro to avoid peak-hour road traffic efficiently.",
+      "Try local Filter Coffee — poured from high heights to create standard froth.",
+      "Local language brief: Kannada is the heritage language. Say 'Namskara' for hello."
+    ]
+  },
+  "mysuru": {
+    weather: "Charming sunny afternoons with cool evening breezes, 20°C - 30°C.",
+    activities: [
+      "Grand tour of the illuminated Mysore Palace and Wodeyar crown jewels.",
+      "Ascend Chamundi Hills to seek blessings at the historic hill temple.",
+      "Browse fragrant sandalwood oils and incense at the historic Devaraja Market.",
+      "Indulge in hot Mysore Masala Dosa and fresh Mysore Pak delicacies.",
+      "Admire the Gothic architecture of the majestic St. Philomena's Cathedral."
+    ],
+    hotels: [
+      { name: "Grand Mercure Mysore Heritage", price: 7500, rating: 4.7, location: "Nelson Mandela Road, Mysore", image: "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=400&q=80" },
+      { name: "Radisson Blu Plaza Palace Side", price: 9000, rating: 4.8, location: "City Center, Mysore", image: "https://images.unsplash.com/photo-1522083165195-342750297f05?auto=format&fit=crop&w=400&q=80" }
+    ],
+    flights: [
+      { carrier: "Alliance Air Metro Connect", price: 4400, duration: "1h 10m", rating: 4.5, logo: "AI" },
+      { carrier: "KSRTC Flybus (Premium Transfer)", price: 1200, duration: "3h 40m", rating: 4.7, logo: "KS" }
+    ],
+    tips: [
+      "Purchase sandalwood oil strictly from Government Sandalwood Oil factories for authentic grade.",
+      "Visit the Mysore Palace on Sunday evening specifically to see its 96,000 light bulb illumination.",
+      "Local language brief: Kannada is prominent. Say 'Hogi Barthini' to mean goodbye."
+    ]
+  },
+  "mumbai": {
+    weather: "Humid marine climate with warm sea breezes, temperature 26°C - 32°C.",
+    activities: [
+      "Sunrise photography beside the magnificent Gateway of India arch.",
+      "Stroll along the Queen's Necklace curve at Marine Drive at sunset.",
+      "Private catamaran ferry out to the ancient rock-cut Elephanta Caves.",
+      "Indulge in heritage street foods: Vada Pav, Sev Puri, and Pav Bhaji at Juhu Beach.",
+      "Marvel at the active Victorian Gothic layout of Chhatrapati Shivaji Terminus."
+    ],
+    hotels: [
+      { name: "The Taj Mahal Palace (Historic Tower)", price: 38000, rating: 4.9, location: "Colaba Waterfront, Mumbai", image: "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=400&q=80" },
+      { name: "Trident Nariman Point", price: 15000, rating: 4.8, location: "Nariman Point Road, Mumbai", image: "https://images.unsplash.com/photo-1537996194471-e657df975ab4?auto=format&fit=crop&w=400&q=80" }
+    ],
+    flights: [
+      { carrier: "Vistara Corporate Business", price: 11000, duration: "2h 05m", rating: 4.9, logo: "UK" },
+      { carrier: "Air India Direct Connect", price: 8200, duration: "2h 15m", rating: 4.7, logo: "AI" }
+    ],
+    tips: [
+      "Use local suburban trains outside high peak rush hours to bypass massive traffic curves.",
+      "Always engage Kaali-Peeli local cabs displaying valid meters.",
+      "Local language brief: Marathi/Hindi is native. Say 'Kasa Ahes' to ask how are you."
+    ]
+  },
+  "delhi": {
+    weather: "Chilly morning mist transitioning to dry sunny afternoons, 14°C - 24°C.",
+    activities: [
+      "Explore the majestic crimson-walled Red Fort and its historic bazaar arcade.",
+      "Witness the high-towering sandstone Mughal minar of Qutub Minar.",
+      "Savor savory street chaats at paranthe wali gali in Chandni Chowk.",
+      "Pay spiritual respects under the serene Lotus Temple lotus marble petals.",
+      "Breathtaking heritage sunset strolls across Humayun's royal garden tomb."
+    ],
+    hotels: [
+      { name: "The Imperial Janpath Heritage", price: 28000, rating: 4.9, location: "Janpath, New Delhi", image: "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=400&q=80" },
+      { name: "Taj Palace Diplomatic Enclave", price: 24000, rating: 4.8, location: "Chanakyapuri, New Delhi", image: "https://images.unsplash.com/photo-1522083165195-342750297f05?auto=format&fit=crop&w=400&q=80" }
+    ],
+    flights: [
+      { carrier: "Air India Legacy Suite", price: 9500, duration: "2h 15m", rating: 4.8, logo: "AI" },
+      { carrier: "IndiGo Golden Seat", price: 6000, duration: "2h 30m", rating: 4.6, logo: "6E" }
+    ],
+    tips: [
+      "Delhi Metro is highly clean and world-class, purchase a day tourist pass.",
+      "Respect religious locations by fully covering shoulders and heads prior to entrance.",
+      "Local language brief: Hindi is regional. Say 'App Kaise Hain' to greet elders."
+    ]
+  },
+  "jaipur": {
+    weather: "Fabulous dry desert climate, sunny mornings and cool starlit nights, 16°C - 28°C.",
+    activities: [
+      "Breathtaking elephant-access ramp up the Amer Fort Palace ramparts.",
+      "Photograph the iconic honeycomb pink sandstone screens of Hawa Mahal.",
+      "Witness the world's largest stone sundial at Jantar Mantar observatory.",
+      "Enjoy traditional Rajasthani Dal Baati Churma at Chokhi Dhani village.",
+      "Behold the spectacular floating water palace of Jal Mahal."
+    ],
+    hotels: [
+      { name: "Rambagh Palace (The Jewel of Jaipur)", price: 45000, rating: 4.9, location: "Bhawani Singh Road, Jaipur", image: "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=400&q=80" },
+      { name: "The Gateway Resort Heritage Stay", price: 8500, rating: 4.6, location: "Amer Road, Jaipur", image: "https://images.unsplash.com/photo-1522083165195-342750297f05?auto=format&fit=crop&w=400&q=80" }
+    ],
+    flights: [
+      { carrier: "Air India Regional Jet", price: 6200, duration: "1h 15m", rating: 4.7, logo: "AI" },
+      { carrier: "IndiGo Direct Royal Link", price: 4600, duration: "1h 30m", rating: 4.5, logo: "6E" }
+    ],
+    tips: [
+      "Buy a composite entry ticket to cover Amer Fort, Hawa Mahal, and Jantar Mantar simultaneously.",
+      "Bargain politely but firmly at Johari and Bapu Bazaars for jewelry and bandhani fabrics.",
+      "Local language brief: Rajasthani/Hindi is spoken. Say 'Khamma Ghani' for a royal greeting."
+    ]
+  },
+  "goa": {
+    weather: "Pleasant seaside sun with fresh coastal marine tides, 24°C - 31°C.",
+    activities: [
+      "Relax on the golden sands of Baga and Calangute coastlines.",
+      "Tour the ancient Portuguese cathedrals of Old Goa (Bom Jesus Basilica).",
+      "Spice plantation walk coupled with traditional organic Goan lunch.",
+      "Sunset dolphin cruise alongside the scenic Mandovi River delta.",
+      "Indulge in freshly prepared sea-bass vindaloo at shoreline shacks."
+    ],
+    hotels: [
+      { name: "The Taj Exotica Resort & Spa", price: 29000, rating: 4.9, location: "Benaulim Beach, South Goa", image: "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=400&q=80" },
+      { name: "Caravela Beach Ocean Front Resort", price: 11000, rating: 4.7, location: "Varca Beach, Goa", image: "https://images.unsplash.com/photo-1537996194471-e657df975ab4?auto=format&fit=crop&w=400&q=80" }
+    ],
+    flights: [
+      { carrier: "IndiGo Leisure Connect", price: 6500, duration: "2h 20m", rating: 4.6, logo: "6E" },
+      { carrier: "Akasa Air Coastal Connect", price: 5400, duration: "2h 35m", rating: 4.5, logo: "QP" }
+    ],
+    tips: [
+      "Renting a local auto-geared scooter is the most seamless and affordable way to traverse beaches.",
+      "Maintain distance from strong currents during high tide advisories.",
+      "Local language brief: Konkani/English is active. Say 'Dev Borem Karum' to say thank you."
+    ]
+  },
+  "kerala": {
+    weather: "Lush tropical green landscapes, soft monsoon showers and humid winds, 23°C - 29°C.",
+    activities: [
+      "Board a luxury Kettuvallam wicker houseboat along Alappuzha backwaters.",
+      "Tour the refreshing high-altitude tea plantations of Munnar.",
+      "Witness a classical Kathakali makeup and spiritual dance performance.",
+      "Enjoy traditional Kerala Sadya lunch spread on fresh banana leaves.",
+      "Rejuvenate with a verified ancient Ayurvedic full body massage session."
+    ],
+    hotels: [
+      { name: "Kumarakom Lake Resort", price: 26000, rating: 4.9, location: "Kottayam, Kerala Backwaters", image: "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=400&q=80" },
+      { name: "The Brunton Boatyard Heritage Kochi", price: 14000, rating: 4.8, location: "Fort Kochi Waterfront", image: "https://images.unsplash.com/photo-1522083165195-342750297f05?auto=format&fit=crop&w=400&q=80" }
+    ],
+    flights: [
+      { carrier: "Air India Express direct", price: 7200, duration: "2h 45m", rating: 4.6, logo: "AI" },
+      { carrier: "IndiGo Coconut Route", price: 5900, duration: "3h 05m", rating: 4.5, logo: "6E" }
+    ],
+    tips: [
+      "Monsoons are beautiful but heavy; carry a sturdy umbrella if visiting between June and September.",
+      "Try local tender coconut water ('Karikku') for elite hydration of your trace.",
+      "Local language brief: Malayalam is native. Say 'Namaskaram' for respect greeting."
+    ]
+  },
+  "kashmir": {
+    weather: "Chilly high alpine breeze, mist sweeping across cedar forests, 8°C - 16°C.",
+    activities: [
+      "Shikara boat ride past floating flower markets on serene Dal Lake.",
+      "Uncover the step-terraced historic beauty of Shalimar Mughal Gardens.",
+      "Ascend Gulmarg ski elevations inside the scenic high Gondola cable car.",
+      "Indulge in authentic multi-course Kashmiri Wazwan feast.",
+      "Tour a regional saffron farm and sample sweet warm Kahwa tea."
+    ],
+    hotels: [
+      { name: "The Taj Khyber Resort & Spa Gulmarg", price: 34000, rating: 4.9, location: "Gulmarg Heights, Kashmir", image: "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=400&q=80" },
+      { name: "Lalit Grand Palace Srinagar", price: 18000, rating: 4.8, location: "Gupkar Road, Srinagar", image: "https://images.unsplash.com/photo-1537996194471-e657df975ab4?auto=format&fit=crop&w=400&q=80" }
+    ],
+    flights: [
+      { carrier: "Air India Himalayan Direct", price: 8800, duration: "1h 50m", rating: 4.8, logo: "AI" },
+      { carrier: "SpiceJet valley scenic", price: 7000, duration: "2h 10m", rating: 4.4, logo: "SG" }
+    ],
+    tips: [
+      "Ensure you rent a houseboat showing standard rating registry badges for maximum comfort.",
+      "Kahwa tea contains real saffron, almonds, and cardamom — perfect for warm climate.",
+      "Local language brief: Kashmiri/Urdu are dominant. Say 'Toba' to signify well-being."
+    ]
+  },
+  "ladakh": {
+    weather: "Brisk mountain dry cold, thin pure oxygen with dramatic blue sky, 4°C - 15°C.",
+    activities: [
+      "Marvel at the color-shifting azure waters of high Pangong Lake.",
+      "Cross Khardung La — one of the highest motorable road passes on Earth.",
+      "Witness spiritual prayers at the historic Thiksey Monastery.",
+      "Enjoy traditional steamed butter Yak momos and butter salt tea.",
+      "Admire the gravity-defying optical illusion of Magnetic Hill."
+    ],
+    hotels: [
+      { name: "The Grand Dragon Ladakh (Eco Luxury)", price: 12000, rating: 4.8, location: "Old Road, Leh", image: "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=400&q=80" },
+      { name: "Ladakh Sarai Wilderness Resort", price: 9500, rating: 4.7, location: "Saboo Valley, Leh Ladakh", image: "https://images.unsplash.com/photo-1522083165195-342750297f05?auto=format&fit=crop&w=400&q=80" }
+    ],
+    flights: [
+      { carrier: "Air India Peak Ascent", price: 12500, duration: "1h 25m", rating: 4.8, logo: "AI" },
+      { carrier: "IndiGo High Altitude Connect", price: 9200, duration: "1h 35m", rating: 4.6, logo: "6E" }
+    ],
+    tips: [
+      "Acclimatize completely in Leh town for at least 36 hours prior to high pass travel.",
+      "Carry ample warm fleece and windproof layers even during summer sequences.",
+      "Local language brief: Ladakhi is beautiful. Say 'Julley' for a warm welcome and greeting."
+    ]
+  },
+  "varanasi": {
+    weather: "Mystic atmospheric morning fog over Ganga, transitioning to dry, 18°C - 27°C.",
+    activities: [
+      "Dawn boat journey along historical bathing ghats of Ganges river.",
+      "Behold the spectacular glowing evening Ganga Aarti lamps ceremony.",
+      "Seek spiritual peace inside the sacred Kashi Vishwanath corridor.",
+      "Explore the ancient Buddhist temple grounds and stupa in nearby Sarnath.",
+      "Savor rich lassi served in traditional clay cups ('Kulhad')."
+    ],
+    hotels: [
+      { name: "BrijRama Palace Heritage (Ganga Ghats)", price: 21000, rating: 4.9, location: "Darbhanga Ghat, Varanasi", image: "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=400&q=80" },
+      { name: "Taj Ganges Varanasi Luxury", price: 16000, rating: 4.8, location: "Nadesar Palace Grounds", image: "https://images.unsplash.com/photo-1537996194471-e657df975ab4?auto=format&fit=crop&w=400&q=80" }
+    ],
+    flights: [
+      { carrier: "Air India Spiritual direct", price: 7800, duration: "1h 45m", rating: 4.7, logo: "AI" },
+      { carrier: "IndiGo Holy Route Connect", price: 5400, duration: "2h 00m", rating: 4.6, logo: "6E" }
+    ],
+    tips: [
+      "Dress modest and remove footwear prior to stepping on temple thresholds.",
+      "Always seek permissions before photographing spiritual custom practices at cremation ghats.",
+      "Local language brief: Hindi/Bhojpuri is local. Say 'Har Har Mahadev' for greeting."
+    ]
+  },
+  "hampi": {
+    weather: "Sunny dry climate reflecting over golden granite boulders, 22°C - 33°C.",
+    activities: [
+      "Browse the sprawling pillars and stone bazaar of Virupaksha Temple.",
+      "Photograph the spectacular monolithic stone chariot in Vijaya Vittala Complex.",
+      "Witness sunset atop Hemakuta Hill with panoramic ruin views.",
+      "Cross the Tungabhadra river in a traditional round wicker Coracle boat.",
+      "Explore the royal stables and Lotus Mahal architectural gems."
+    ],
+    hotels: [
+      { name: "Evolve Back Kamalapura Palace", price: 34000, rating: 4.9, location: "Kamalapura, Vijayanagara Hampi", image: "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=400&q=80" },
+      { name: "Hampi Heritage Wilderness Lodge", price: 7800, rating: 4.6, location: "Kadiganahalli, Hampi", image: "https://images.unsplash.com/photo-1522083165195-342750297f05?auto=format&fit=crop&w=400&q=80" }
+    ],
+    flights: [
+      { carrier: "Star Air Hampi direct", price: 5400, duration: "1h 10m", rating: 4.6, logo: "S5" },
+      { carrier: "Vande Bharat Express (Premium Rail transfer)", price: 1800, duration: "5h 25m", rating: 4.9, logo: "VB" }
+    ],
+    tips: [
+      "Hampi is massive; renting a designated local bicycle or eco-friendly cart makes ruin scouting easy.",
+      "Hampi is a strict vegetarian sacred heritage site. Savor delicious local banana-leaf meals.",
+      "Local language brief: Kannada is the native tongue. Say 'Chennagidini' to mean I am doing fine."
+    ]
+  },
+  "coorg": {
+    weather: "Lush misty mornings with refreshing mountain precipitation, 16°C - 23°C.",
+    activities: [
+      "Walk the winding estates of an active coffee plantation.",
+      "Seek spiritual peace at Namdroling Golden Temple Buddhist monastery.",
+      "Witness spectacular roaring cascades at Abbey and Iruppu waterfalls.",
+      "Behold standard valley mist from Raja's Seat vantage point at sunset.",
+      "Savor authentic spicy local Pandi curry alongside Kadambuttu rice balls."
+    ],
+    hotels: [
+      { name: "Taj Madikeri Resort & Spa Coorg", price: 28000, rating: 4.9, location: "Monnangeri, Madikeri", image: "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=400&q=80" },
+      { name: "The Tamara Coorg (Wilderness Hills)", price: 21000, rating: 4.9, location: "Kabbinakad House, Coorg", image: "https://images.unsplash.com/photo-1537996194471-e657df975ab4?auto=format&fit=crop&w=400&q=80" }
+    ],
+    flights: [
+      { carrier: "Flybus Premium coach transfer", price: 1400, duration: "5h 10m", rating: 4.8, logo: "FB" },
+      { carrier: "KSRTC Airavat Club Class bus", price: 850, duration: "5h 40m", rating: 4.7, logo: "KS" }
+    ],
+    tips: [
+      "Misty conditions reduce road visibility down dramatically; hire skilled local hillside drivers.",
+      "Coorg coffee makes an elite souvenir. Purchase dark-roast chicory-free options.",
+      "Local language brief: Kodava/Kannada is native. Say 'Santhosha' to mean happiness."
+    ]
+  },
+  "ooty": {
+    weather: "Chilly crisp hill climate, pine-scented breeze and soft sun, 10°C - 18°C.",
+    activities: [
+      "Enjoy a leisurely ride on the Nilgiri Mountain Toy Train (UNESCO World Heritage).",
+      "Stroll past thousands of exotic species at the Rose Garden.",
+      "Paddle boat through early morning mist on the tranquil Ooty Lake.",
+      "Hike to Doddabetta Peak for sweeping views of the Nilgiri mountain chains.",
+      "Visit a local tea factory, sampling freshly crushed chocolate tea."
+    ],
+    hotels: [
+      { name: "Savoy - IHCL SeleQtions Heritage", price: 16000, rating: 4.8, location: "Sylks Road, Ooty Hills", image: "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=400&q=80" },
+      { name: "The Sterling Elk Hill Resort", price: 7200, rating: 4.5, location: "Ramakrishna Mutt Road, Ooty", image: "https://images.unsplash.com/photo-1522083165195-342750297f05?auto=format&fit=crop&w=400&q=80" }
+    ],
+    flights: [
+      { carrier: "Nilgiri Toy Train Heritage First", price: 650, duration: "4h 30m", rating: 4.9, logo: "TR" },
+      { carrier: "Coimbatore Airport Premium Flybus", price: 900, duration: "3h 10m", rating: 4.7, logo: "FB" }
+    ],
+    tips: [
+      "Book Nilgiri Mountain Railway seats at least 3 months ahead on IRCTC, as seats disappear instantly.",
+      "Do try the delicious local Ooty varkey biscuits with warm Nilgiri tea.",
+      "Local language brief: Tamil is widely spoken. Say 'Nandri' to express thanks."
     ]
   }
 };
@@ -101,16 +376,16 @@ export async function generateAILineItinerary(
     console.log(`[AI Simulator] Formulating simulated high-fidelity plans for: ${destination}`);
     
     // Choose appropriate fallback base
-    const baseKey = Object.keys(MOCK_DESTINATIONS).find(k => normDest.includes(k)) || 'tokyo';
+    const baseKey = Object.keys(MOCK_DESTINATIONS).find(k => normDest.includes(k)) || 'agra';
     const base = MOCK_DESTINATIONS[baseKey];
 
     const days: DayItinerary[] = [];
     const themes = [
-      "Discovery & Icon Attractions",
-      "Local Hidden Trails & Heritage",
-      "Culinary Journeys & Relax Sunset",
-      "Adventure Outings or Artistic Quarters",
-      "Boutique Shopping & Grand Farewell"
+      "Royal Heritage & Iconic Sights",
+      "Hidden Local Trails & Culture",
+      "Scenic Highpoints & Regional Flavors",
+      "Bazaars & Artisan Craft Discovery",
+      "Sunset Splendors & Traditional Dinner"
     ];
 
     for (let d = 1; d <= daysCount; d++) {
@@ -118,33 +393,33 @@ export async function generateAILineItinerary(
       const startIdx = (d - 1) * 2;
       const act1 = base.activities[startIdx % base.activities.length];
       const act2 = base.activities[(startIdx + 1) % base.activities.length];
-      const act3 = `Stroll and dynamic dinner near local central nodes of ${destination}`;
+      const act3 = `Immersive regional food walk sampling local delicacies with culinary specialists of ${destination}`;
 
       days.push({
         day: d,
         theme: theme,
         activities: [
-          { time: "09:30 AM", title: act1, description: `Immerse yourself in this high-rated ${userPrefs.travelStyle[0] || 'popular'} highlight, curated perfectly for your preferences.`, cost: userPrefs.budgetLevel === 'budget' ? 5 : 20, location: `Central Sector, ${destination}`, rating: 4.7 },
-          { time: "02:00 PM", title: act2, description: `Enjoy an active afternoon discovery with local guides, tailored to ${userPrefs.dietary} culinary considerations.`, cost: userPrefs.budgetLevel === 'budget' ? 10 : 35, location: `District Area, ${destination}`, rating: 4.6 },
-          { time: "06:30 PM", title: act3, description: `Indulge in cozy local cafes and visual view spots reflecting custom recommendations.`, cost: userPrefs.budgetLevel === 'budget' ? 15 : 50, location: `Riverside Promenade`, rating: 4.8 }
+          { time: "09:30 AM", title: act1, description: `Heritage exploration matching your travel profile, customized based on preferred activity levels.`, cost: userPrefs.budgetLevel === 'budget' ? 300 : 1500, location: `Main Sector, ${destination}`, rating: 4.9 },
+          { time: "02:00 PM", title: act2, description: `Detailed afternoon immersion with professional regional guides. Accommodates dietary requirement: ${userPrefs.dietary}.`, cost: userPrefs.budgetLevel === 'budget' ? 200 : 1200, location: `Heritage District, ${destination}`, rating: 4.8 },
+          { time: "06:30 PM", title: act3, description: `Splendid evening sunset watch and a traditional local sit-down dining session with heritage recipes.`, cost: userPrefs.budgetLevel === 'budget' ? 500 : 2200, location: `Sunset Overlook, ${destination}`, rating: 4.8 }
         ]
       });
     }
 
-    // Adjust price estimations based on budget inputs
+    // Adjust price estimations based on budget inputs (fully Indian Rupees)
     const budgetFactor = userPrefs.budgetLevel === 'budget' ? 0.6 : userPrefs.budgetLevel === 'luxury' ? 1.8 : 1.0;
-    const flightEst = Math.round(400 * budgetFactor);
-    const hotelEst = Math.round(120 * budgetFactor * daysCount);
-    const actEst = Math.round(45 * budgetFactor * daysCount);
+    const flightEst = Math.round((base.flights[0]?.price || 6000) * budgetFactor);
+    const hotelEst = Math.round((base.hotels[0]?.price || 8000) * budgetFactor * daysCount * 0.7);
+    const actEst = Math.round(2500 * budgetFactor * daysCount);
     const dailyAllow = Math.round((budget - (flightEst + hotelEst + actEst)) / daysCount);
 
     return {
-      weatherSummary: base.weather.replace("autumn skies", "skies"),
+      weatherSummary: base.weather,
       budgetBreakdown: {
         flightsEstimated: flightEst,
         hotelsEstimated: hotelEst,
         activitiesEstimated: actEst,
-        dailyAllowance: dailyAllow > 0 ? dailyAllow : Math.round(50 * budgetFactor)
+        dailyAllowance: dailyAllow > 0 ? dailyAllow : Math.round(1800 * budgetFactor)
       },
       days,
       suggestedHotels: base.hotels.map(h => ({ ...h, price: Math.round(h.price * budgetFactor) })),
@@ -156,19 +431,20 @@ export async function generateAILineItinerary(
   // Real Gemini API call with structured JSON schema
   try {
     const prompt = `
-      You are the lead VoyageAI Planner Agent.
-      Generate a comprehensive travel itinerary matching user constraints:
+      You are the lead VoyageAI Planner Agent specialized in premium Indian travel.
+      Generate a comprehensive incredibly high-quality travel itinerary matching user constraints:
       - Destination: "${destination}"
       - Travel Duration: ${daysCount} days
-      - Budget Limit: $${budget}
+      - Budget Limit: ₹${budget} (Indian Rupees - INR)
       - Budget Preference: ${userPrefs.budgetLevel}
       - Travel Styles of User: [${userPrefs.travelStyle.join(', ')}]
       - Dietary Requirements: ${userPrefs.dietary}
       - Preferred Activity Level: ${userPrefs.preferredActivityLevel}
 
-      Provide realistic flight carriers, real-world high-quality luxury/budget hotel recommendations typical for this destination,
-      meaningful weather forecasts for the region, and highly detailed hourly/daily itineraries matching user style metrics.
-      Calculate sensible estimated costs aligned with $${budget} budget level.
+      Provide realistic flight carriers/train connections inside India (Vande Bharat Express, Air India, IndiGo), 
+      real-world high-quality Indian luxury/moderate hotel reviews and estimations (Taj Hotels, Oberoi Resorts, ITC, boutique stays),
+      meaningful regional weather forecasts with warnings or clothing tips, and highly detailed hourly/daily itineraries.
+      IMPORTANT: ALL estimated costs, day-by-day activity costs, flight prices, hotel night rates, and daily allowances MUST be calculated and represented in Indian Rupees (INR) which fits the total budget limit of ₹${budget}.
     `;
 
     const response = await client.models.generateContent({
@@ -176,21 +452,21 @@ export async function generateAILineItinerary(
       contents: prompt,
       config: {
         responseMimeType: "application/json",
-        systemInstruction: "You are VoyageAI, a helpful, deeply cultured travel curation system. Provide fully structured, high-accuracy JSON responses following the schema exactly. Ensure suggested activity costs build exactly into the overall travel budgets. Do not include Markdown blocks like ```json inside the JSON itself.",
+        systemInstruction: "You are VoyageAI, a helpful, deeply cultured Indian travel curation system. Provide fully structured, high-accuracy JSON responses following the schema exactly. Ensure suggested activity costs build exactly into the overall travel budgets. Format all output prices in Indian Rupees (INR) - DO NOT mix USD or other formats. Do not include Markdown blocks like ```json inside the JSON itself.",
         responseSchema: {
           type: Type.OBJECT,
           properties: {
             weatherSummary: {
               type: Type.STRING,
-              description: "Brief current or typical weather summary during the trip (e.g. Sunny and clear, 22-26 degrees celsius)."
+              description: "Brief current or typical weather summary during the trip with advisory if necessary."
             },
             budgetBreakdown: {
               type: Type.OBJECT,
               properties: {
-                flightsEstimated: { type: Type.INTEGER, description: "Estimated flight roundtrip cost value." },
-                hotelsEstimated: { type: Type.INTEGER, description: "Estimated overall hotel cost value for the full stay." },
-                activitiesEstimated: { type: Type.INTEGER, description: "Estimated sum of all activity entry fees/passes." },
-                dailyAllowance: { type: Type.INTEGER, description: "Calculated daily recommendation for meals and transit." }
+                flightsEstimated: { type: Type.INTEGER, description: "Estimated flight/train transport cost value in Indian Rupees (INR)." },
+                hotelsEstimated: { type: Type.INTEGER, description: "Estimated overall hotel cost value in Indian Rupees (INR) for the full stay." },
+                activitiesEstimated: { type: Type.INTEGER, description: "Estimated sum of all activity entry fees/passes in Indian Rupees (INR)." },
+                dailyAllowance: { type: Type.INTEGER, description: "Calculated daily recommendation for local meals/rickshaws in Indian Rupees (INR)." }
               },
               required: ["flightsEstimated", "hotelsEstimated", "activitiesEstimated", "dailyAllowance"]
             },
@@ -201,16 +477,16 @@ export async function generateAILineItinerary(
                 type: Type.OBJECT,
                 properties: {
                   day: { type: Type.INTEGER },
-                  theme: { type: Type.STRING, description: "Day overall core focus theme (e.g. Ancient Temple Trails)." },
+                  theme: { type: Type.STRING, description: "Day overall core focus theme (e.g. Ancient Vijayanagara Sights or Maratha Shore walks)." },
                   activities: {
                     type: Type.ARRAY,
                     items: {
                       type: Type.OBJECT,
                       properties: {
                         time: { type: Type.STRING, description: "Typical hours like 09:30 AM or 03:00 PM." },
-                        title: { type: Type.STRING, description: "Descriptive name of monument, attraction, or restaurant." },
-                        description: { type: Type.STRING, description: "Beautiful summary of why to visit or what to buy there." },
-                        cost: { type: Type.INTEGER, description: "Individual cost in dollars (0 if free)." },
+                        title: { type: Type.STRING, description: "Descriptive name of monument, temple, palace, or authentic diner." },
+                        description: { type: Type.STRING, description: "Beautiful summary of historical significance or what local cuisine to try there." },
+                        cost: { type: Type.INTEGER, description: "Individual cost in INR (0 if free)." },
                         location: { type: Type.STRING },
                         rating: { type: Type.NUMBER, description: "Local user rating scale 1 to 5." }
                       },
@@ -223,12 +499,12 @@ export async function generateAILineItinerary(
             },
             suggestedHotels: {
               type: Type.ARRAY,
-              description: "Highly rated local accommodations representing best matches for the selected budget choice.",
+              description: "Highly rated local accommodations representing best matches for the selected budget choice in Indian Rupees.",
               items: {
                 type: Type.OBJECT,
                 properties: {
                   name: { type: Type.STRING },
-                  price: { type: Type.INTEGER, description: "Nightly price estimation in US Dollars." },
+                  price: { type: Type.INTEGER, description: "Nightly price estimation in Indian Rupees (INR)." },
                   rating: { type: Type.NUMBER },
                   location: { type: Type.STRING },
                   image: { type: Type.STRING, description: "Leave empty or provide unsplash landscape placeholder match value." }
@@ -238,13 +514,13 @@ export async function generateAILineItinerary(
             },
             suggestedFlights: {
               type: Type.ARRAY,
-              description: "Logical flight paths to reach destination.",
+              description: "Logical flight paths or train routes to reach destination in Indian Rupees.",
               items: {
                 type: Type.OBJECT,
                 properties: {
-                  carrier: { type: Type.STRING },
-                  price: { type: Type.INTEGER },
-                  duration: { type: Type.STRING, description: "e.g. 5h 30m or 14h 20m" },
+                  carrier: { type: Type.STRING, description: "Airline carrier like Air India or train like Shatabdi/Vande Bharat Express." },
+                  price: { type: Type.INTEGER, description: "Estimated ticket cost in Indian Rupees (INR)." },
+                  duration: { type: Type.STRING, description: "e.g. 2h 15m or 5h 30m" },
                   departure: { type: Type.STRING, description: "Sample direct or 1-stop statement." }
                 },
                 required: ["carrier", "price", "duration"]
@@ -253,7 +529,7 @@ export async function generateAILineItinerary(
             travelTips: {
               type: Type.ARRAY,
               items: { type: Type.STRING },
-              description: "Helpful cultural, security, packing, or digital suggestions."
+              description: "Helpful cultural, security, regional greeting translation, or logistics suggestions."
             }
           },
           required: ["weatherSummary", "budgetBreakdown", "days", "suggestedHotels", "suggestedFlights", "travelTips"]

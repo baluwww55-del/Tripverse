@@ -217,7 +217,7 @@ export default function SmartPlanner({
                 type="text" 
                 value={searchDest}
                 onChange={(e) => setSearchDest(e.target.value)}
-                placeholder="e.g. Kyoto, Japan"
+                placeholder="e.g. Chanakyapuri, Delhi or Taj Residency, Agra"
                 className="w-full bg-slate-50 border border-slate-200 py-3.5 pl-10 pr-4 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none focus:ring-1 focus:ring-blue-500"
               />
             </div>
@@ -241,13 +241,13 @@ export default function SmartPlanner({
           <div className="space-y-1.5">
             <div className="flex justify-between items-center text-xs text-slate-500 font-bold uppercase tracking-wider ml-1">
               <span>Total Budget Limit</span>
-              <span className="text-emerald-600 font-extrabold">${searchBudget}</span>
+              <span className="text-emerald-600 font-extrabold">₹{searchBudget.toLocaleString('en-IN')}</span>
             </div>
             <input 
               type="range" 
-              min="300" 
-              max="8000" 
-              step="100"
+              min="5000" 
+              max="300000" 
+              step="5000"
               value={searchBudget}
               onChange={(e) => setSearchBudget(parseInt(e.target.value))}
               className="w-full h-1.5 bg-slate-100 rounded-lg appearance-none cursor-pointer accent-emerald-500"
@@ -414,7 +414,7 @@ export default function SmartPlanner({
                             <span className="text-slate-700 flex items-center gap-0.5"><MapPin className="h-3.5 w-3.5 text-slate-400" /> {act.location}</span>
                             
                             {act.cost > 0 && (
-                              <span className="bg-blue-50 border border-blue-100 text-blue-700 text-[9px] px-2 rounded font-bold uppercase">Budget: ${act.cost}</span>
+                              <span className="bg-blue-50 border border-blue-100 text-blue-700 text-[9px] px-2 rounded font-bold uppercase">Budget: ₹{act.cost.toLocaleString('en-IN')}</span>
                             )}
 
                             <button
@@ -468,8 +468,8 @@ export default function SmartPlanner({
                 <div className="space-y-3.5 text-xs font-semibold text-slate-600">
                   <div>
                     <div className="flex justify-between mb-1 text-slate-500">
-                      <span>Flights allocation</span>
-                      <span className="font-extrabold text-slate-800">${activePlan.budgetBreakdown.flightsEstimated}</span>
+                      <span>Transport allocation</span>
+                      <span className="font-extrabold text-slate-800">₹{activePlan.budgetBreakdown.flightsEstimated.toLocaleString('en-IN')}</span>
                     </div>
                     <div className="w-full bg-slate-100 h-1 rounded-full overflow-hidden">
                       <div className="bg-blue-600 h-full" style={{ width: '40%' }}></div>
@@ -478,8 +478,8 @@ export default function SmartPlanner({
 
                   <div>
                     <div className="flex justify-between mb-1 text-slate-500">
-                      <span>Refined ryokans & lodges</span>
-                      <span className="font-extrabold text-slate-800">${activePlan.budgetBreakdown.hotelsEstimated}</span>
+                      <span>Luxe Heritage Stays</span>
+                      <span className="font-extrabold text-slate-800">₹{activePlan.budgetBreakdown.hotelsEstimated.toLocaleString('en-IN')}</span>
                     </div>
                     <div className="w-full bg-slate-100 h-1 rounded-full overflow-hidden">
                       <div className="bg-amber-500 h-full" style={{ width: '45%' }}></div>
@@ -488,8 +488,8 @@ export default function SmartPlanner({
 
                   <div>
                     <div className="flex justify-between mb-1 text-slate-500">
-                      <span>Sightseeings passes</span>
-                      <span className="font-extrabold text-slate-800">${activePlan.budgetBreakdown.activitiesEstimated}</span>
+                      <span>Attractions & Sights passes</span>
+                      <span className="font-extrabold text-slate-800">₹{activePlan.budgetBreakdown.activitiesEstimated.toLocaleString('en-IN')}</span>
                     </div>
                     <div className="w-full bg-slate-100 h-1 rounded-full overflow-hidden">
                       <div className="bg-rose-500 h-full" style={{ width: '15%' }}></div>
@@ -498,7 +498,7 @@ export default function SmartPlanner({
 
                   <div className="pt-2 border-t border-slate-100 flex justify-between items-center bg-slate-50 -mx-5 -mb-5 p-4 rounded-b-3xl">
                     <span className="text-[10px] text-slate-500 uppercase tracking-wider font-extrabold">Suggested Allowance</span>
-                    <span className="text-base font-black text-blue-600">${activePlan.budgetBreakdown.dailyAllowance}/day</span>
+                    <span className="text-base font-black text-blue-600 font-mono">₹{activePlan.budgetBreakdown.dailyAllowance.toLocaleString('en-IN')}/day</span>
                   </div>
                 </div>
               </div>
@@ -517,7 +517,7 @@ export default function SmartPlanner({
                         <p className="text-[10px] text-slate-500 truncate font-semibold">{hot.location || "Historic district"}</p>
                       </div>
                       <div className="text-right shrink-0">
-                        <div className="text-xs font-extrabold text-blue-600">${hot.price}/n</div>
+                        <div className="text-xs font-extrabold text-blue-600 font-mono">₹{hot.price.toLocaleString('en-IN')}/night</div>
                         <button 
                           onClick={() => runSimulatedBooking('hotel', hot.name)}
                           className="bg-blue-600 hover:bg-blue-700 text-white text-[9px] font-bold px-2 py-0.5 rounded cursor-pointer mt-1"
@@ -544,7 +544,7 @@ export default function SmartPlanner({
                         <p className="text-[10px] text-slate-500 font-semibold">Duration: {fl.duration || "Non Stop"}</p>
                       </div>
                       <div className="text-right shrink-0">
-                        <div className="text-xs font-extrabold text-emerald-600">${fl.price}</div>
+                        <div className="text-xs font-extrabold text-emerald-600 font-mono">₹{fl.price.toLocaleString('en-IN')}</div>
                         <button 
                           onClick={() => runSimulatedBooking('flight', fl.carrier)}
                           className="bg-emerald-600 hover:bg-emerald-700 text-white text-[9px] font-bold px-2 py-0.5 rounded cursor-pointer mt-1"

@@ -148,7 +148,7 @@ export default function LandingPage({
       <div className="space-y-4">
         <div className="flex justify-between items-end">
           <div>
-            <h2 className="text-2xl font-bold tracking-tight text-slate-900">Trending Global Holidays</h2>
+            <h2 className="text-2xl font-bold tracking-tight text-slate-900">Trending Indian Holidays</h2>
             <p className="text-sm text-slate-500">Luxury escapes automatically calibrated with curated activity layers</p>
           </div>
           <button 
@@ -187,7 +187,7 @@ export default function LandingPage({
                 <p className="text-[11px] text-slate-500 font-semibold">{spot.style}</p>
                 <div className="flex justify-between items-center text-xs pt-2 border-t border-slate-150">
                   <span className="text-slate-500 font-medium">{spot.duration} Days Escape</span>
-                  <span className="font-bold text-blue-600">Est: ${spot.budget}</span>
+                  <span className="font-bold text-blue-600">Est: ₹{spot.budget.toLocaleString('en-IN')}</span>
                 </div>
               </div>
             </div>

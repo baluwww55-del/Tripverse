@@ -27,10 +27,10 @@ export default function ExploreWorld({
     >
       <div>
         <h1 className="text-3xl font-extrabold text-slate-900 flex items-center gap-2">
-          <span className="p-2 rounded-xl bg-blue-50 text-blue-600 block shadow-sm"><Compass className="h-6 w-6" /></span>
-          <span>Explore Global Paradises</span>
+          <span className="p-2 rounded-xl bg-orange-50 text-orange-600 block shadow-sm"><Compass className="h-6 w-6" /></span>
+          <span>Explore Incredible India</span>
         </h1>
-        <p className="text-sm text-slate-500 mt-1">Browse trending destinations mapped by actual live tourist flows and premium comfort rankings</p>
+        <p className="text-sm text-slate-500 mt-1">Browse trending luxury and wellness destinations across India mapped by travel comfort metrics</p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -39,7 +39,7 @@ export default function ExploreWorld({
             <div className="sm:w-1/2 relative h-56 sm:h-auto min-h-[220px]">
               <img src={spot.image} alt={spot.destination} className="absolute inset-0 w-full h-full object-cover" />
               <div className="absolute inset-0 bg-gradient-to-r from-transparent to-black/30"></div>
-              <span className="absolute top-4 left-4 bg-blue-600 text-white text-[9px] font-extrabold px-2.5 py-1 rounded-full uppercase tracking-widest shadow-sm">
+              <span className="absolute top-4 left-4 bg-orange-600 text-white text-[9px] font-extrabold px-2.5 py-1 rounded-full uppercase tracking-widest shadow-sm">
                 {spot.tag}
               </span>
             </div>
@@ -47,10 +47,10 @@ export default function ExploreWorld({
             <div className="p-6 sm:w-1/2 flex flex-col justify-between space-y-4">
               <div className="space-y-2">
                 <div className="flex justify-between items-center">
-                  <span className="text-[10px] bg-amber-50 text-amber-600 border border-amber-100 font-extrabold px-2.5 py-1 rounded-full uppercase">
-                    ⭐ 4.9 Premium Spot
+                  <span className="text-[10px] bg-red-50 text-red-600 border border-red-100 font-extrabold px-2.5 py-1 rounded-full uppercase">
+                    ⭐ 4.9 Heritage Spot
                   </span>
-                  <span className="text-[10px] font-bold text-slate-400">Est. Price Range</span>
+                  <span className="text-[10px] font-bold text-slate-400 font-sans">Est. Price Range</span>
                 </div>
                 <h3 className="text-xl font-bold text-slate-900 leading-tight">{spot.destination}</h3>
                 <p className="text-xs text-slate-600 leading-relaxed font-medium">
@@ -65,7 +65,7 @@ export default function ExploreWorld({
                 </div>
                 <div className="flex justify-between items-center text-xs text-slate-500">
                   <span className="font-medium">Curated Budget Guideline:</span>
-                  <span className="font-extrabold text-blue-600 text-sm">${spot.budget}</span>
+                  <span className="font-extrabold text-[#D97706] text-sm font-mono">₹{spot.budget.toLocaleString('en-IN')}</span>
                 </div>
                 
                 <button 
