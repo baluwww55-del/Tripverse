@@ -397,8 +397,22 @@ export async function generateSimulatedItinerary(
   const normDest = destination.toLowerCase().trim();
   console.log(`[AI Simulator] Formulating simulated high-fidelity plans for: ${destination} | Tier: ${userPrefs.budgetLevel}`);
   
-  // Choose appropriate fallback base
-  const baseKey = Object.keys(MOCK_DESTINATIONS).find(k => normDest.includes(k)) || 'agra';
+  // Choose appropriate fallback base with specific multi-term mapping
+  let baseKey = Object.keys(MOCK_DESTINATIONS).find(k => normDest.includes(k)) || 'agra';
+  if (normDest.includes("mysore") || normDest.includes("mysuru")) baseKey = "mysuru";
+  else if (normDest.includes("bangalore") || normDest.includes("bengaluru")) baseKey = "bengaluru";
+  else if (normDest.includes("delhi") || normDest.includes("qutub") || normDest.includes("red fort")) baseKey = "delhi";
+  else if (normDest.includes("jaipur") || normDest.includes("amer")) baseKey = "jaipur";
+  else if (normDest.includes("alleppey") || normDest.includes("alappuzha") || normDest.includes("kerala") || normDest.includes("munnar")) baseKey = "kerala";
+  else if (normDest.includes("srinagar") || normDest.includes("kashmir") || normDest.includes("gulmarg")) baseKey = "kashmir";
+  else if (normDest.includes("goa")) baseKey = "goa";
+  else if (normDest.includes("hampi")) baseKey = "hampi";
+  else if (normDest.includes("coorg") || normDest.includes("kodagu")) baseKey = "coorg";
+  else if (normDest.includes("ooty") || normDest.includes("ootacamund")) baseKey = "ooty";
+  else if (normDest.includes("leh") || normDest.includes("ladakh")) baseKey = "ladakh";
+  else if (normDest.includes("varanasi")) baseKey = "varanasi";
+  else if (normDest.includes("taj mahal") || normDest.includes("agra")) baseKey = "agra";
+
   const base = MOCK_DESTINATIONS[baseKey];
 
   // Map budget Level to logical scale factor & pricing parameters

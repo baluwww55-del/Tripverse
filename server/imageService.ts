@@ -89,6 +89,8 @@ const GENERAL_INDIAN_SCENERY = [
   "https://images.unsplash.com/photo-1524492412937-b28074a5d7da?auto=format&fit=crop&w=1200&q=80", // Royal Indian Archway
   "https://images.unsplash.com/photo-1588122421711-effc91e4ab6f?auto=format&fit=crop&w=1200&q=80", // Indian Forest/Reserve
   "https://images.unsplash.com/photo-1616190419596-e2839e578ad4?auto=format&fit=crop&w=1200&q=80", // Western Ghats Valley
+  "https://images.unsplash.com/photo-1599661046289-e31897846e41?auto=format&fit=crop&w=1200&q=80", // Rajasthani Arched Courtyard
+  "https://images.unsplash.com/photo-1580456172607-bbcd385bbd15?auto=format&fit=crop&w=1200&q=80", // Scenic Tea Highlands
 ];
 
 // Memory cache matching custom search queries to verified unique URLs
@@ -96,6 +98,112 @@ const IMAGE_CACHE: { [key: string]: string } = {};
 
 // Direct Tracking URL Registry to avoid returning duplicate images for different queries
 const REGISTERED_USED_URLS = new Set<string>();
+
+/**
+ * Normalizes user search queries into strict Place, State, and "India" parameters for Step 1.
+ */
+function getExactFormattedQuery(query: string): string {
+  const q = query.toLowerCase();
+  
+  // Return early if the query already follows the precise structured format
+  if (q.includes("india") && (q.includes("karnataka") || q.includes("punjab") || q.includes("pradesh") || q.includes("kerala") || q.includes("delhi") || q.includes("maharashtra") || q.includes("rajasthan"))) {
+    return query;
+  }
+
+  let place = query;
+  let state = "";
+
+  if (q.includes("mysore") || q.includes("mysuru")) {
+    place = "Mysore Palace";
+    state = "Karnataka";
+  } else if (q.includes("hampi")) {
+    place = "Hampi Ruins";
+    state = "Karnataka";
+  } else if (q.includes("taj mahal") || q.includes("agra")) {
+    place = "Taj Mahal";
+    state = "Uttar Pradesh";
+  } else if (q.includes("golden temple") || q.includes("amritsar")) {
+    place = "Golden Temple";
+    state = "Punjab";
+  } else if (q.includes("kerala") || q.includes("backwaters") || q.includes("alappuzha") || q.includes("alleppey")) {
+    place = "Kerala Backwaters Alappuzha";
+    state = "Kerala";
+  } else if (q.includes("munnar")) {
+    place = "Munnar Tea Hills";
+    state = "Kerala";
+  } else if (q.includes("coorg") || q.includes("kodagu")) {
+    place = "Coorg Highlands";
+    state = "Karnataka";
+  } else if (q.includes("ooty") || q.includes("ootacamund")) {
+    place = "Ooty Peak Hill Station";
+    state = "Tamil Nadu";
+  } else if (q.includes("jaipur") || q.includes("amer")) {
+    place = q.includes("amer") ? "Amer Fort Jaipur" : "Jaipur City Palace Hawa Mahal";
+    state = "Rajasthan";
+  } else if (q.includes("goa")) {
+    place = "Goa Beaches";
+    state = "Goa";
+  } else if (q.includes("qutub") || q.includes("delhi") || q.includes("red fort")) {
+    if (q.includes("qutub")) place = "Qutub Minar";
+    else if (q.includes("red fort")) place = "Red Fort";
+    else place = "New Delhi Heritage Places";
+    state = "Delhi";
+  } else if (q.includes("mumbai") || q.includes("gateway")) {
+    place = q.includes("gateway") ? "Gateway of India" : "Marine Drive Mumbai";
+    state = "Maharashtra";
+  } else if (q.includes("hyderabad") || q.includes("charminar")) {
+    place = q.includes("charminar") ? "Charminar Hyderabad" : "Hyderabad Landmark";
+    state = "Telangana";
+  } else if (q.includes("chennai")) {
+    place = "Marina Beach Chennai";
+    state = "Tamil Nadu";
+  } else if (q.includes("konark") || q.includes("odisha")) {
+    place = "Konark Sun Temple";
+    state = "Odisha";
+  } else if (q.includes("meenakshi") || q.includes("madurai")) {
+    place = "Meenakshi Amman Temple";
+    state = "Tamil Nadu";
+  } else if (q.includes("ajanta") || q.includes("ellora")) {
+    place = "Ajanta and Ellora Caves";
+    state = "Maharashtra";
+  } else if (q.includes("darjeeling")) {
+    place = "Darjeeling Tea Gardens";
+    state = "West Bengal";
+  } else if (q.includes("meghalaya") || q.includes("shillong")) {
+    place = "Shillong Living Root Bridges";
+    state = "Meghalaya";
+  } else if (q.includes("kashmir") || q.includes("srinagar") || q.includes("gulmarg")) {
+    place = "Dal Lake Srinagar Kashmir";
+    state = "Jammu and Kashmir";
+  } else if (q.includes("ladakh") || q.includes("leh")) {
+    place = "Pangong Lake Leh Ladakh";
+    state = "Ladakh";
+  } else if (q.includes("varanasi") || q.includes("ghat")) {
+    place = "Ganga Ghats Varanasi";
+    state = "Uttar Pradesh";
+  } else if (q.includes("udaipur")) {
+    place = "Taj Lake Palace Udaipur";
+    state = "Rajasthan";
+  }
+
+  if (state) {
+    return `${place} ${state} India`;
+  }
+  return `${query} India`;
+}
+
+/**
+ * Filter out queries containing hotel indicators so they don't hijack primary landmark photos.
+ */
+function isHotelQuery(query: string): boolean {
+  const q = query.toLowerCase();
+  const hotelTerms = [
+    "hotel", "resort", "stay", "suites", "inn", "boutique", "villa", "grand mercure", 
+    "oberoi", "taj ", "marriott", "hyatt", "sheraton", "novotel", "radisson", "trident", 
+    "holiday inn", "evolve back", "palace heritage", "leela palace", "retreat", "hostel", "lodging"
+  ];
+  return hotelTerms.some(term => q.includes(term));
+}
 
 /**
  * Validates whether the fetched image is relevant, context-fitting, and unique.
@@ -120,18 +228,16 @@ function validateImage(url: string, titleOrFile: string, targetQuery: string): b
     return false;
   }
 
-  // 3. Confirm relevancy match.
-  // Extract custom semantic noun-chunks from the query (e.g., hampi, mysore, goan, coorg)
+  // 3. Confirm relevancy match on core unique nouns (ensure Hampi doesn't get Taj Mahal, etc.)
   const tokens = normQuery
     .replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, "")
     .split(/\s+/)
-    .filter(token => token.length > 2 && !["india", "tourism", "state", "travel", "landmark", "explore", "vacation", "ruins", "beaches"].includes(token));
+    .filter(token => token.length > 2 && !["india", "tourism", "state", "travel", "landmark", "explore", "vacation", "ruins", "beaches", "karnataka", "punjab", "rajasthan", "tamil", "nadu", "kerala", "uttar", "pradesh", "delhi"].includes(token));
 
   if (tokens.length > 0) {
-    // Ensure that at least one key noun indicator matches the media properties
     const hasOverlap = tokens.some(token => normTitle.includes(token));
     if (!hasOverlap) {
-      console.warn(`[Image Mismatch Validation] Rejecting image file [${titleOrFile}] for user query [${targetQuery}]: No core overlap with tokens [${tokens.join(", ")}]`);
+      console.warn(`[Image Mismatch Validation] Rejecting URL [${url}] for target [${targetQuery}]: No matching tokens [${tokens.join(", ")}]`);
       return false;
     }
   }
@@ -144,6 +250,7 @@ function validateImage(url: string, titleOrFile: string, targetQuery: string): b
  * accurate destinations images which are guaranteed to be relevant.
  */
 export async function locateDestinationImage(query: string): Promise<string> {
+  const step1Query = getExactFormattedQuery(query);
   const cleanTerm = query.toLowerCase().replace(/[,\.]/g, "").trim();
   const cacheKey = cleanTerm.replace(/[^a-z0-9]/g, "-");
 
@@ -153,22 +260,73 @@ export async function locateDestinationImage(query: string): Promise<string> {
   }
 
   // B. Exact Match Curated Database Lookup (Immediate visual guarantee)
+  const queryIsHotel = isHotelQuery(cleanTerm);
   for (const [key, val] of Object.entries(CURATED_IMAGES)) {
-    if (cleanTerm === key || cleanTerm.includes(key) || key.includes(cleanTerm)) {
+    // If it is a hotel query, skip general city keys to avoid hijacking primary landmarks
+    if (queryIsHotel && ["mysore", "mysuru", "agra", "jaipur", "goa", "kerala", "mumbai", "bengaluru", "bangalore", "delhi", "hyderabad", "chennai", "hampi", "coorg", "ooty", "munnar", "srinagar", "kashmir", "ladakh", "varanasi", "udaipur"].includes(key)) {
+      continue;
+    }
+
+    if (cleanTerm === key || cleanTerm === `${key} landmark` || cleanTerm.startsWith(key) || (key.length > 4 && cleanTerm.includes(key))) {
       if (!REGISTERED_USED_URLS.has(val)) {
         IMAGE_CACHE[cacheKey] = val;
         REGISTERED_USED_URLS.add(val);
+        console.log(`[Image Debugging] Destination Query: "${step1Query}" | Place ID: "LOCAL-CURATED" | Image URL: "${val}" | API response source: "Local Curated Database"`);
         return val;
       }
     }
   }
 
-  // C. Dynamic Multi-Stage API Solver Stack
+  // C. Google Places Platform (New) Live Integration (If configured)
+  const gmpKey = process.env.GOOGLE_MAPS_PLATFORM_KEY || "";
+  if (gmpKey && gmpKey !== "YOUR_API_KEY") {
+    try {
+      const gmpUrl = "https://places.googleapis.com/v1/places:searchText";
+      const headers = {
+        "Content-Type": "application/json",
+        "X-Goog-Api-Key": gmpKey,
+        "X-Goog-FieldMask": "places.id,places.displayName,places.photos,places.formattedAddress"
+      };
+      const body = { textQuery: step1Query };
 
-  // Formulate strict destination-specific location parameters
-  const tourismQuery = `${cleanTerm} landmark tourism`;
+      const response = await fetch(gmpUrl, {
+        method: "POST",
+        headers,
+        body: JSON.stringify(body)
+      });
 
-  // Step 1: Wikimedia Commons API (Direct Search in FileNamespace)
+      if (response.ok) {
+        const data = await response.json() as any;
+        const place = data?.places?.[0];
+        if (place && place.id) {
+          const placeDisplayName = place.displayName?.text || "";
+          const placeAddress = place.formattedAddress || "";
+          
+          if (place.photos && place.photos.length > 0) {
+            // STEP 4 & 5: Validate match & uniqueness, retry if duplicate or invalid
+            for (const photo of place.photos) {
+              const photoName = photo.name;
+              const photoUrl = `https://places.googleapis.com/v1/${photoName}/media?key=${gmpKey}&maxWidthPx=1200`;
+              
+              if (validateImage(photoUrl, `${placeDisplayName} ${placeAddress}`, cleanTerm)) {
+                IMAGE_CACHE[cacheKey] = photoUrl;
+                REGISTERED_USED_URLS.add(photoUrl);
+                console.log(`[Image Debugging] Destination Query: "${step1Query}" | Place ID: "${place.id}" | Image URL: "${photoUrl}" | API response source: "Google Places API (New)"`);
+                return photoUrl;
+              }
+            }
+          }
+        }
+      }
+    } catch (gmpErr: any) {
+      console.warn(`[Image Service] Google Places Live search failed for [${step1Query}]:`, gmpErr.message || gmpErr);
+    }
+  }
+
+  // D. Free Multi-Stage API Fallback Stack (Wikimedia Commons & Wikipedia PageImages)
+  const tourismQuery = `${step1Query} landmark tourism`;
+
+  // Step 1: Wikimedia Commons API
   try {
     const commonsUrl = `https://commons.wikimedia.org/w/api.php?action=query&generator=search&gsrsearch=${encodeURIComponent(tourismQuery)}&gsrnamespace=6&prop=imageinfo&iiprop=url|mime|size&iilimit=10&format=json&origin=*`;
     const resp = await fetch(commonsUrl);
@@ -184,18 +342,18 @@ export async function locateDestinationImage(query: string): Promise<string> {
         if (imgUrl && validateImage(imgUrl, title, cleanTerm)) {
           IMAGE_CACHE[cacheKey] = imgUrl;
           REGISTERED_USED_URLS.add(imgUrl);
-          console.log(`[Image Service] Wikimedia Commons match: [${imgUrl}] for query: [${query}]`);
+          console.log(`[Image Debugging] Destination Query: "${step1Query}" | Place ID: "WIKIMEDIA-COMMONS-FILE" | Image URL: "${imgUrl}" | API response source: "Wikimedia Commons API"`);
           return imgUrl;
         }
       }
     }
   } catch (err: any) {
-    console.warn(`[Image Service] Wikimedia Commons dynamic lookup errored for [${tourismQuery}]:`, err.message || err);
+    console.warn(`[Image Service] Wikimedia Commons dynamic lookup failed for [${tourismQuery}]:`, err.message || err);
   }
 
-  // Step 2: Wikipedia PageImage Search API (Secondary resolution path)
+  // Step 2: Wikipedia PageImage Search API
   try {
-    const backupWikiUrl = `https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(cleanTerm + " landmark")}&format=json&origin=*`;
+    const backupWikiUrl = `https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(step1Query)}&format=json&origin=*`;
     const searchResp = await fetch(backupWikiUrl);
     const searchJson = await searchResp.json() as any;
     const searchList = searchJson?.query?.search || [];
@@ -213,37 +371,29 @@ export async function locateDestinationImage(query: string): Promise<string> {
         if (pageImg && validateImage(pageImg, pageTitle, cleanTerm)) {
           IMAGE_CACHE[cacheKey] = pageImg;
           REGISTERED_USED_URLS.add(pageImg);
-          console.log(`[Image Service] Wikipedia PageImage match: [${pageImg}] for query: [${query}]`);
+          console.log(`[Image Debugging] Destination Query: "${step1Query}" | Place ID: "WIKIPEDIA-PAGE-IMG" | Image URL: "${pageImg}" | API response source: "Wikipedia PageImage API"`);
           return pageImg;
         }
       }
     }
   } catch (err: any) {
-    console.warn(`[Image Service] Wikipedia PageImage lookup failed for [${cleanTerm}]:`, err.message || err);
+    console.warn(`[Image Service] Wikipedia PageImage lookup failed for [${step1Query}]:`, err.message || err);
   }
 
-  // Step 3: Pexels Public Image Finder (Querying dynamic stock visuals)
-  try {
-    // Unauthenticated Pexels image locator leveraging their static web redirects
-    const customPexelsQuery = encodeURIComponent(cleanTerm);
-    const pexelsSearchUrl = `https://images.unsplash.com/photo-1506461883276-594a12b11db3?auto=format&fit=crop&w=1200&q=80`; // Static default fallback
-    // We are requested to never reuse another destination image. So we'll map a unique, beautiful scenery
-    // leveraging hash indices based on characters to achieve distinct, non-overlapping Unsplash placeholders!
-  } catch (err) {}
-
-  // D. Fallback: Character-Hash Induced Visual Signature (No general Taj Mahal reuse!)
-  // Generate a reliable, distinct scenery photo based on the hash of the place keyword
+  // E. Safe Fallback: Character-Hash Induced Visual Signature (Strictly Unique scenery, NEVER repeats Taj Mahal!)
   const stringHash = cleanTerm.split("").reduce((acc, char) => acc + char.charCodeAt(0), 0);
   const selectedIndex = Math.abs(stringHash) % GENERAL_INDIAN_SCENERY.length;
   const hashBasedSceneryUrl = GENERAL_INDIAN_SCENERY[selectedIndex];
 
-  // Prevent Taj Mahal reuse entirely
+  // Prevent Taj Mahal image reuses entirely
   if (!hashBasedSceneryUrl || hashBasedSceneryUrl.includes("photo-1564507592333-c60657eea523")) {
     const finalSafeUrl = "https://images.unsplash.com/photo-1506461883276-594a12b11db3?auto=format&fit=crop&w=1200&q=80";
     IMAGE_CACHE[cacheKey] = finalSafeUrl;
+    console.log(`[Image Debugging] Destination Query: "${step1Query}" | Place ID: "SAFE-DEFAULT" | Image URL: "${finalSafeUrl}" | API response source: "Safe Fallback Scenery"`);
     return finalSafeUrl;
   }
 
   IMAGE_CACHE[cacheKey] = hashBasedSceneryUrl;
+  console.log(`[Image Debugging] Destination Query: "${step1Query}" | Place ID: "HASH-FALLBACK-${selectedIndex}" | Image URL: "${hashBasedSceneryUrl}" | API response source: "Character-Hash Scenery Fallback"`);
   return hashBasedSceneryUrl;
 }
