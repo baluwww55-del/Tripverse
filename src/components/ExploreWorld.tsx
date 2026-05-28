@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion } from 'motion/react';
 import { Compass, Sparkles, ChevronRight, Star } from 'lucide-react';
-import { popularSpots } from '../data/travelData';
+import { allDestinations } from '../data/travelData';
 
 interface ExploreWorldProps {
   setSearchDest: (dest: string) => void;
@@ -34,7 +34,7 @@ export default function ExploreWorld({
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        {popularSpots.map((spot, idx) => (
+        {allDestinations.map((spot, idx) => (
           <div key={idx} className="bg-white rounded-3xl overflow-hidden border border-slate-200 shadow-lg flex flex-col sm:flex-row transform hover:scale-[1.01] transition-all duration-350">
             <div className="sm:w-1/2 relative h-56 sm:h-auto min-h-[220px]">
               <img src={spot.image} alt={spot.destination} className="absolute inset-0 w-full h-full object-cover" />

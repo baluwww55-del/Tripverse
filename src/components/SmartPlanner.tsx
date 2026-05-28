@@ -3,6 +3,7 @@ import { motion } from 'motion/react';
 import { MapPin, Calendar, DollarSign, Sparkles, RefreshCw, CloudSun, Bookmark, Download, Map as MapIcon, Hotel, Plane, Clock } from 'lucide-react';
 import { DayItinerary, UserPreferences, SavedTrip } from '../types';
 import { addActivityToCalendar, fetchGoogleChatSpaces, shareItineraryToGoogleChat, GoogleChatSpace } from '../workspace';
+import RealIndiaMap from './RealIndiaMap';
 
 interface SmartPlannerProps {
   searchDest: string;
@@ -198,6 +199,23 @@ export default function SmartPlanner({
   }, [currentPage, generatedPlan, selectedTripView]);
 
   const activePlan = selectedTripView || generatedPlan;
+
+  // Extract all active itinerary stop/activity names to pinpoint and trace on leaflet
+  const activeStops: string[] = [];
+  if (activePlan) {
+    if (activePlan.destination) {
+      activeStops.push(activePlan.destination);
+    }
+    if (activePlan.days) {
+      activePlan.days.forEach((day: any) => {
+        day.activities?.forEach((act: any) => {
+          if (act.location && !activeStops.includes(act.location)) {
+            activeStops.push(act.location);
+          }
+        });
+      });
+    }
+  }
 
   return (
     <motion.div
@@ -440,23 +458,19 @@ export default function SmartPlanner({
           {/* Right column: Interactive Map Canvas, budget allocations, hotels */}
           <div className="space-y-6">
             
-            {/* Visual Route Canvas */}
+            {/* Visual Route Real Leaflet Map */}
             <div className="bg-white p-5 rounded-3xl border border-slate-200 shadow-md space-y-3">
-              <h3 className="text-xs font-bold text-slate-500 uppercase tracking-widest flex items-center gap-1.5">
+              <h3 className="text-xs font-bold text-slate-500 uppercase tracking-widest flex items-center gap-1.5 border-b border-slate-100 pb-2">
                 <MapIcon className="h-4.5 w-4.5 text-blue-600" />
-                <span>Interactive Flight Path</span>
+                <span>Geographical Route Alignment</span>
               </h3>
               
-              <div className="relative rounded-2xl overflow-hidden border border-slate-150 shadow-inner">
-                <canvas 
-                  ref={canvasRef} 
-                  width={300} 
-                  height={180} 
-                  className="w-full h-auto block"
+              <div className="relative rounded-2xl overflow-hidden shadow-inner">
+                <RealIndiaMap 
+                  activeTripDestinations={activeStops} 
+                  focusedDestinationName={activePlan?.destination}
+                  height="260px"
                 />
-                <div className="absolute bottom-2.5 left-2.5 bg-black/60 backdrop-blur-sm shadow text-[9px] text-white/90 px-2 py-1 rounded border border-white/10 font-mono">
-                  * GIS Route tracer locked
-                </div>
               </div>
             </div>
 
