@@ -4,6 +4,7 @@ import { createServer as createViteServer } from "vite";
 import { Database } from "./server/db.js";
 import { generateAILineItinerary, processAgentChat } from "./server/ai.js";
 import { getWeatherForecast } from "./server/weather.js";
+import { locateDestinationImage } from "./server/imageService.js";
 
 async function startServer() {
   const app = express();
@@ -91,6 +92,18 @@ async function startServer() {
     } catch (error: any) {
       console.error("Weather service failure:", error);
       res.status(500).json({ error: "Failed to retrieve active weather forecast: " + error.message });
+    }
+  });
+
+  // 2.6 Dynamic Destination Image Fetcher
+  app.get("/api/images/search", async (req, res) => {
+    try {
+      const query = (req.query.q as string) || "Incredible India";
+      const imageUrl = await locateDestinationImage(query);
+      res.json({ url: imageUrl });
+    } catch (error: any) {
+      console.error("Image service failure:", error);
+      res.status(500).json({ error: "Failed to retrieve real destination images: " + error.message });
     }
   });
 

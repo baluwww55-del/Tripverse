@@ -85,9 +85,11 @@ export default function TravelerProfile({
               onChange={(e) => setPrefForm({ ...prefForm, budgetLevel: e.target.value as any })}
               className="w-full bg-slate-50 border border-slate-200 py-3 px-4 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none focus:ring-1 focus:ring-blue-500 cursor-pointer"
             >
-              <option value="budget">Thrifty Explorer ($300 - $1000 limit per holiday)</option>
-              <option value="moderate">Bespoke Comfort ($1200 - $2500 limit per holiday)</option>
-              <option value="luxury">Affluent Premium Experience ($3000 - $8000 limit per holiday)</option>
+              <option value="backpacker">🎒 Backpacker Mode (Thrifty Explorer - hostels & street food)</option>
+              <option value="moderate">🚗 Moderate Mode (Comfort Explorer - boutique stays & cafes)</option>
+              <option value="luxury">👑 Luxury Mode (Royal Heritage Stays - fine dining & private guides)</option>
+              <option value="family">👨‍👩‍👧‍👦 Family Mode (Comfort Multigenerational - spacious resorts & private cruiser cabs)</option>
+              <option value="honeymoon">💖 Honeymoon Mode (Romantic Premium Retreats - plunge pools & private dinners)</option>
             </select>
           </div>
 

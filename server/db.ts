@@ -7,7 +7,7 @@ const DB_FILE = path.join(process.cwd(), 'database-store.json');
 export interface UserPreferences {
   name: string;
   email: string;
-  budgetLevel: 'budget' | 'moderate' | 'luxury';
+  budgetLevel: 'backpacker' | 'moderate' | 'luxury' | 'family' | 'honeymoon';
   travelStyle: string[]; // e.g. ["adventure", "culture", "relax", "foodie"]
   dietary: string;
   preferredActivityLevel: 'low' | 'medium' | 'high';

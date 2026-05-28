@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { allDestinations, PopularSpot } from '../data/travelData';
+import CinematicImage from './CinematicImage';
 import { 
   Maximize2, Minimize2, Compass, Layers, Navigation, Sparkles, 
   Map, Sun, Cloud, Plane, Star, Play, Pause, X, ChevronRight, Eye, Info, Clock, MapPin, Map as MapIcon
@@ -545,13 +546,11 @@ export default function RealIndiaMap({
             {selectedDestination ? (
               <div className="bg-slate-950/60 p-4 rounded-xl border border-slate-800 space-y-4 shadow-inner">
                 <div className="relative h-40 w-full rounded-lg overflow-hidden bg-slate-800 border border-slate-800">
-                  <img 
+                  <CinematicImage 
                     src={selectedDestination.image} 
                     alt={selectedDestination.destination} 
-                    className="w-full h-full object-cover transition duration-700 hover:scale-110" 
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent"></div>
-                  <span className="absolute bottom-2.5 left-2.5 bg-orange-600 font-black text-[9px] px-2.5 py-1 rounded tracking-widest uppercase">
+                  <span className="absolute bottom-2.5 left-2.5 bg-orange-600 font-black text-[9px] px-2.5 py-1 rounded tracking-widest uppercase z-20">
                     {selectedDestination.tag}
                   </span>
                   <span className="absolute top-2.5 right-2.5 bg-slate-900/90 text-[8px] border border-slate-800 py-1 px-2 rounded-md font-mono flex items-center gap-1">

@@ -369,11 +369,18 @@ export function generateSimulatedItinerary(
   travelTips: string[];
 } {
   const normDest = destination.toLowerCase().trim();
-  console.log(`[AI Simulator] Formulating simulated high-fidelity plans for: ${destination}`);
+  console.log(`[AI Simulator] Formulating simulated high-fidelity plans for: ${destination} | Tier: ${userPrefs.budgetLevel}`);
   
   // Choose appropriate fallback base
   const baseKey = Object.keys(MOCK_DESTINATIONS).find(k => normDest.includes(k)) || 'agra';
   const base = MOCK_DESTINATIONS[baseKey];
+
+  // Map budget Level to logical scale factor & pricing parameters
+  let budgetFactor = 1.0;
+  if (userPrefs.budgetLevel === 'backpacker') budgetFactor = 0.4;
+  else if (userPrefs.budgetLevel === 'luxury') budgetFactor = 2.5;
+  else if (userPrefs.budgetLevel === 'family') budgetFactor = 1.8;
+  else if (userPrefs.budgetLevel === 'honeymoon') budgetFactor = 3.0;
 
   const days: DayItinerary[] = [];
   const themes = [
@@ -391,23 +398,55 @@ export function generateSimulatedItinerary(
     const act2 = base.activities[(startIdx + 1) % base.activities.length];
     const act3 = `Immersive regional food walk sampling local delicacies with culinary specialists of ${destination}`;
 
+    const cost1 = Math.round((userPrefs.budgetLevel === 'backpacker' ? 150 : userPrefs.budgetLevel === 'luxury' ? 2500 : 800) * (d % 2 === 0 ? 0.8 : 1.2));
+    const cost2 = Math.round((userPrefs.budgetLevel === 'backpacker' ? 100 : userPrefs.budgetLevel === 'luxury' ? 1800 : 600) * (d % 2 === 0 ? 1.1 : 0.9));
+    const cost3 = Math.round((userPrefs.budgetLevel === 'backpacker' ? 250 : userPrefs.budgetLevel === 'luxury' ? 3500 : 1200) * (d % 2 === 0 ? 0.9 : 1.3));
+
     days.push({
       day: d,
       theme: theme,
       activities: [
-        { time: "09:30 AM", title: act1, description: `Heritage exploration matching your travel profile, customized based on preferred activity levels.`, cost: userPrefs.budgetLevel === 'budget' ? 300 : 1500, location: `Main Sector, ${destination}`, rating: 4.9 },
-        { time: "02:00 PM", title: act2, description: `Detailed afternoon immersion with professional regional guides. Accommodates dietary requirement: ${userPrefs.dietary}.`, cost: userPrefs.budgetLevel === 'budget' ? 200 : 1200, location: `Heritage District, ${destination}`, rating: 4.8 },
-        { time: "06:30 PM", title: act3, description: `Splendid evening sunset watch and a traditional local sit-down dining session with heritage recipes.`, cost: userPrefs.budgetLevel === 'budget' ? 500 : 2200, location: `Sunset Overlook, ${destination}`, rating: 4.8 }
+        { time: "09:30 AM", title: act1, description: `Heritage exploration matching your travel profile, customized based on preferred activity levels of ${userPrefs.preferredActivityLevel} intensity.`, cost: cost1, location: `Main Sector, ${destination}`, rating: 4.9 },
+        { time: "02:00 PM", title: act2, description: `Detailed afternoon immersion with professional regional guides. Accommodates dietary requirement: ${userPrefs.dietary}.`, cost: cost2, location: `Heritage District, ${destination}`, rating: 4.8 },
+        { time: "06:30 PM", title: act3, description: `Splendid evening sunset watch and a traditional local sit-down dining session with heritage recipes.`, cost: cost3, location: `Sunset Overlook, ${destination}`, rating: 4.8 }
       ]
     });
   }
 
   // Adjust price estimations based on budget inputs (fully Indian Rupees)
-  const budgetFactor = userPrefs.budgetLevel === 'budget' ? 0.6 : userPrefs.budgetLevel === 'luxury' ? 1.8 : 1.0;
-  const flightEst = Math.round((base.flights[0]?.price || 6000) * budgetFactor);
-  const hotelEst = Math.round((base.hotels[0]?.price || 8000) * budgetFactor * daysCount * 0.7);
-  const actEst = Math.round(2500 * budgetFactor * daysCount);
+  const flightEst = Math.round((base.flights[0]?.price || 6000) * (userPrefs.budgetLevel === 'backpacker' ? 0.5 : budgetFactor * 0.8));
+  const hotelEst = Math.round((base.hotels[0]?.price || 8000) * budgetFactor * daysCount * 0.8);
+  const actEst = days.reduce((acc, currentDay) => acc + currentDay.activities.reduce((sum, act) => sum + act.cost, 0), 0);
   const dailyAllow = Math.round((budget - (flightEst + hotelEst + actEst)) / daysCount);
+
+  // Curate dynamic beautiful real Indian hotels with Unsplash imagery
+  const hotelImages: { [key: string]: string[] } = {
+    "agra": [
+      "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=600&q=80",
+      "https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fit=crop&w=600&q=80"
+    ],
+    "bengaluru": [
+      "https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=600&q=80",
+      "https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?auto=format&fit=crop&w=600&q=80"
+    ],
+    "mysuru": [
+      "https://images.unsplash.com/photo-1564507592333-c60657eea523?auto=format&fit=crop&w=600&q=80",
+      "https://images.unsplash.com/photo-1540541338287-41700207dee6?auto=format&fit=crop&w=600&q=80"
+    ],
+    "mumbai": [
+      "https://images.unsplash.com/photo-1596422846543-75c6fc18a523?auto=format&fit=crop&w=600&q=80",
+      "https://images.unsplash.com/photo-1571896349842-33c89424de2d?auto=format&fit=crop&w=600&q=80"
+    ],
+    "delhi": [
+      "https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?auto=format&fit=crop&w=600&q=80",
+      "https://images.unsplash.com/photo-1445019980597-93fa8acb246c?auto=format&fit=crop&w=600&q=80"
+    ]
+  };
+
+  const getHotelImage = (idx: number) => {
+    const images = hotelImages[baseKey] || hotelImages["delhi"];
+    return images[idx % images.length];
+  };
 
   return {
     weatherSummary: base.weather,
@@ -418,8 +457,12 @@ export function generateSimulatedItinerary(
       dailyAllowance: dailyAllow > 0 ? dailyAllow : Math.round(1800 * budgetFactor)
     },
     days,
-    suggestedHotels: base.hotels.map(h => ({ ...h, price: Math.round(h.price * budgetFactor) })),
-    suggestedFlights: base.flights.map(f => ({ ...f, price: Math.round(f.price * budgetFactor) })),
+    suggestedHotels: base.hotels.map((h, hIdx) => ({ 
+      ...h, 
+      price: Math.round(h.price * budgetFactor),
+      image: getHotelImage(hIdx)
+    })),
+    suggestedFlights: base.flights.map(f => ({ ...f, price: Math.round(f.price * (userPrefs.budgetLevel === 'backpacker' ? 0.6 : budgetFactor * 0.8)) })),
     travelTips: base.tips
   };
 }

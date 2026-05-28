@@ -24,6 +24,7 @@ import { UserPreferences } from '../types';
 import { allDestinations, PopularSpot, sampleHotels } from '../data/travelData';
 import RealIndiaMap from './RealIndiaMap';
 import SearchAndVoiceAssistant from './SearchAndVoiceAssistant';
+import CinematicImage from './CinematicImage';
 
 interface LandingPageProps {
   userPrefs: UserPreferences;
@@ -429,13 +430,11 @@ export default function LandingPage({
                 className="w-72 shrink-0 snap-center bg-white rounded-2xl overflow-hidden border border-slate-200/60 shadow-md group hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 cursor-pointer"
               >
                 <div className="relative h-44 w-full overflow-hidden">
-                  <img 
+                  <CinematicImage 
                     src={spot.image} 
                     alt={spot.destination} 
-                    className="w-full h-full object-cover group-hover:scale-105 transition duration-500"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent"></div>
-                  <span className="absolute top-2.5 left-2.5 bg-slate-900/60 backdrop-blur-md text-amber-400 text-[9px] font-black px-2 py-0.5 rounded-md uppercase tracking-wide border border-white/10">
+                  <span className="absolute top-2.5 left-2.5 bg-slate-900/60 backdrop-blur-md text-amber-400 text-[9px] font-black px-2 py-0.5 rounded-md uppercase tracking-wide border border-white/10 z-20">
                     {spot.tag}
                   </span>
                   <div className="absolute bottom-2.5 left-2.5 text-left">
@@ -504,15 +503,13 @@ export default function LandingPage({
               >
                 {/* Cinematic zooming absolute responsive image */}
                 <div className="relative h-64 w-full overflow-hidden bg-slate-100">
-                  <img 
+                  <CinematicImage 
                     src={dest.image} 
                     alt={dest.destination} 
-                    className="w-full h-full object-cover transition-transform duration-700 hover:scale-105"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-900/30 to-transparent"></div>
                   
                   {/* Absolute Floating items */}
-                  <span className="absolute top-4 left-4 bg-orange-600 text-white text-[9px] font-black px-3 py-1.5 rounded-full uppercase tracking-widest border border-white/20 shadow">
+                  <span className="absolute top-4 left-4 bg-orange-600 text-white text-[9px] font-black px-3 py-1.5 rounded-full uppercase tracking-widest border border-white/20 shadow z-20">
                     {dest.tag}
                   </span>
 
@@ -596,8 +593,8 @@ export default function LandingPage({
           {sampleHotels.map((hot, idx) => (
             <div key={idx} className="bg-white rounded-2xl overflow-hidden border border-slate-200 shadow hover:shadow-lg transition">
               <div className="relative h-44 bg-slate-100">
-                <img src={hot.image} alt={hot.name} className="w-full h-full object-cover" />
-                <span className="absolute top-2.5 left-2.5 bg-black/60 text-white text-[9px] font-bold px-2 py-0.5 rounded-md flex items-center gap-0.5">
+                <CinematicImage src={hot.image} alt={hot.name} />
+                <span className="absolute top-2.5 left-2.5 bg-black/60 text-white text-[9px] font-bold px-2 py-0.5 rounded-md flex items-center gap-0.5 z-20">
                   ⭐ {hot.rating} Royal Accredit
                 </span>
                 <span className="absolute bottom-2.5 right-2.5 bg-indigo-600 text-white text-[9px] font-extrabold px-2 py-0.5 rounded-md">

@@ -98,6 +98,21 @@ export default function SearchAndVoiceAssistant({
     }
   };
 
+  // Text to speech voice synthesis
+  const speakText = (text: string) => {
+    if (typeof window === 'undefined' || !window.speechSynthesis) return;
+    try {
+      window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = 'en-IN'; // Standard Indian English accent
+      utterance.rate = 0.95;
+      utterance.pitch = 1.0;
+      window.speechSynthesis.speak(utterance);
+    } catch (e) {
+      console.warn("Speech synthesis aborted: ", e);
+    }
+  };
+
   // Initialize Web Speech API
   useEffect(() => {
     const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
@@ -105,13 +120,16 @@ export default function SearchAndVoiceAssistant({
       const rec = new SpeechRecognition();
       rec.continuous = false;
       rec.interimResults = true;
-      rec.lang = 'en-IN'; // Elegant Indian English transcripting standard
+      rec.lang = 'en-IN'; // Elegant Indian English transcription format
 
       rec.onstart = () => {
         setIsListening(true);
         setVoiceError(null);
-        setTranscript('Listening to your spoken travel requests...');
+        setTranscript('Listening for your spoken travel query...');
         setSpokenReply(null);
+        try {
+          speakText("Listening. Please state your Indian destination or command.");
+        } catch (err) {}
       };
 
       rec.onresult = (event: any) => {
@@ -123,16 +141,17 @@ export default function SearchAndVoiceAssistant({
       rec.onerror = (event: any) => {
         console.error("Speech Recognition Error:", event.error);
         if (event.error === 'not-allowed') {
-          setVoiceError("Microphone block permissions detected. Enable mic access to dictate.");
+          const errMsg = "Microphone permissions blocked. Please enable mic access in your browser settings.";
+          setVoiceError(errMsg);
+          speakText(errMsg);
         } else {
-          setVoiceError(`Audio signal error: ${event.error}`);
+          setVoiceError(`Audio sensor mismatch: ${event.error}`);
         }
         setIsListening(false);
       };
 
       rec.onend = () => {
         setIsListening(false);
-        // Process spoken words once dictation ends
       };
 
       recognitionRef.current = rec;
@@ -149,20 +168,57 @@ export default function SearchAndVoiceAssistant({
 
   // Post-process final transcribed text to trigger intelligent travel context
   useEffect(() => {
-    if (isListening || !transcript.trim() || transcript === 'Listening to your spoken travel requests...') return;
+    if (isListening || !transcript.trim() || transcript === 'Listening for your spoken travel query...') return;
 
-    const spokenQuery = transcript.toLowerCase();
+    const spokenQuery = transcript.toLowerCase().trim();
     let bestMatch: PopularSpot | null = null;
     let matchScore = 0;
 
-    // Check for keyword matches in predefined 18 destinations
+    // Specific verbal command parsers
+    if (spokenQuery.includes("weather") || spokenQuery.includes("climate") || spokenQuery.includes("temperature")) {
+      // Find the destination first
+      const destinationItem = allDestinations.find(d => 
+        spokenQuery.includes(d.destination.toLowerCase().split(',')[0].trim()) ||
+        spokenQuery.includes(d.location?.toLowerCase().split(',')[0].trim() || "")
+      );
+      if (destinationItem) {
+        const weatherMsg = `Current weather forecast for ${destinationItem.destination} is ${destinationItem.weather || 'pleasant and clear'}. Perfect for a magnificent sightseeing.`;
+        setSpokenReply(weatherMsg);
+        speakText(weatherMsg);
+        setTimeout(() => {
+          handleSelectPlace(destinationItem.destination);
+          setTranscript('');
+          setSpokenReply(null);
+        }, 3500);
+        return;
+      }
+    }
+
+    if (spokenQuery.includes("hotel") || spokenQuery.includes("resort") || spokenQuery.includes("stay") || spokenQuery.includes("accommodation")) {
+      const destinationItem = allDestinations.find(d => 
+        spokenQuery.includes(d.destination.toLowerCase().split(',')[0].trim()) ||
+        spokenQuery.includes(d.location?.toLowerCase().split(',')[0].trim() || "")
+      );
+      if (destinationItem) {
+        const hotelMsg = `Searching best properties near ${destinationItem.destination}. Heritage mansions and bespoke wellness retreats are selected for your style context.`;
+        setSpokenReply(hotelMsg);
+        speakText(hotelMsg);
+        setTimeout(() => {
+          handleSelectPlace(destinationItem.destination);
+          setTranscript('');
+          setSpokenReply(null);
+        }, 3200);
+        return;
+      }
+    }
+
+    // Check for keyword matches in predefined destinations
     allDestinations.forEach(dest => {
       const nameWords = dest.destination.toLowerCase().replace(/,/g, '').split(' ');
       let score = 0;
       nameWords.forEach(w => {
         if (spokenQuery.includes(w)) score += 1;
       });
-      // Tag matches
       if (spokenQuery.includes(dest.tag.toLowerCase())) score += 1;
       if (dest.location && spokenQuery.includes(dest.location.toLowerCase())) score += 2;
 
@@ -174,7 +230,9 @@ export default function SearchAndVoiceAssistant({
 
     if (bestMatch && matchScore > 0) {
       const match: PopularSpot = bestMatch;
-      setSpokenReply(`Recognized: "${transcript}". Connecting to ${match.destination}!`);
+      const responseMsg = `Recognized: "${transcript}". Connecting you instantly with ${match.destination}!`;
+      setSpokenReply(responseMsg);
+      speakText(`Opening ${match.destination}`);
       setTimeout(() => {
         handleSelectPlace(match.destination);
         setTranscript('');
@@ -182,7 +240,9 @@ export default function SearchAndVoiceAssistant({
       }, 2000);
     } else {
       // General fallbacks if no specific destination matches
-      setSpokenReply(`Dictation ready: "${transcript}". Exploring India for matches...`);
+      const fallbackMsg = `Dictation captured: "${transcript}". Querying real-time records across incredible India...`;
+      setSpokenReply(fallbackMsg);
+      speakText(`Searching for ${transcript}`);
       setTimeout(() => {
         setQuery(transcript);
         onSearchSelect(transcript, 4, 65000);
@@ -194,15 +254,16 @@ export default function SearchAndVoiceAssistant({
 
   const toggleListening = () => {
     if (!recognitionRef.current) {
-      // Elegant Simulation Fallback for browsers with missing Web Speech
-      setTranscript("Initializing backup voice agent...");
+      // Elegant Integration Fallback for browsers with blocked or missing Web Speech
+      setTranscript("Initializing backup voice assistant...");
       setIsListening(true);
+      speakText("Initiating voice search simulation.");
       setTimeout(() => {
         const samplePrompts = [
-          "Show luxury packages in Jaipur Forts",
-          "What is the weather in Kashmir Srinagar?",
-          "Take me to Hampi Ruins ancient carvings",
-          "Find beach resort options near Goa"
+          "Explain Mysore Palace Karnataka heritage grandeur",
+          "What is the weather in Kashmir Srinagar today?",
+          "Take me to Hampi Ruins stone carvings",
+          "Show luxury beach resort options near Goa"
         ];
         const randomPhrase = samplePrompts[Math.floor(Math.random() * samplePrompts.length)];
         setTranscript(randomPhrase);
@@ -219,7 +280,7 @@ export default function SearchAndVoiceAssistant({
       try {
         recognitionRef.current.start();
       } catch (err) {
-        setVoiceError("Microphone startup mismatch. Ensure workspace permissions allow mic.");
+        setVoiceError("Microphone startup failure. Check block permissions.");
       }
     }
   };

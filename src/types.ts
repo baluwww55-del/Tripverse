@@ -1,7 +1,7 @@
 export interface UserPreferences {
   name: string;
   email: string;
-  budgetLevel: 'budget' | 'moderate' | 'luxury';
+  budgetLevel: 'backpacker' | 'moderate' | 'luxury' | 'family' | 'honeymoon';
   travelStyle: string[];
   dietary: string;
   preferredActivityLevel: 'low' | 'medium' | 'high';

@@ -2,6 +2,7 @@ import React from 'react';
 import { motion } from 'motion/react';
 import { Compass, Sparkles, ChevronRight, Star } from 'lucide-react';
 import { allDestinations } from '../data/travelData';
+import CinematicImage from './CinematicImage';
 
 interface ExploreWorldProps {
   setSearchDest: (dest: string) => void;
@@ -37,9 +38,8 @@ export default function ExploreWorld({
         {allDestinations.map((spot, idx) => (
           <div key={idx} className="bg-white rounded-3xl overflow-hidden border border-slate-200 shadow-lg flex flex-col sm:flex-row transform hover:scale-[1.01] transition-all duration-350">
             <div className="sm:w-1/2 relative h-56 sm:h-auto min-h-[220px]">
-              <img src={spot.image} alt={spot.destination} className="absolute inset-0 w-full h-full object-cover" />
-              <div className="absolute inset-0 bg-gradient-to-r from-transparent to-black/30"></div>
-              <span className="absolute top-4 left-4 bg-orange-600 text-white text-[9px] font-extrabold px-2.5 py-1 rounded-full uppercase tracking-widest shadow-sm">
+              <CinematicImage src={spot.image} alt={spot.destination} className="absolute inset-0" />
+              <span className="absolute top-4 left-4 bg-orange-600 text-white text-[9px] font-extrabold px-2.5 py-1 rounded-full uppercase tracking-widest shadow-sm z-20">
                 {spot.tag}
               </span>
             </div>
