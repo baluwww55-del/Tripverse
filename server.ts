@@ -134,7 +134,7 @@ async function startServer() {
         const parsedDays = parseInt(daysCount);
         const parsedBudget = parseFloat(budget);
         const userPrefs = Database.getPreferences();
-        const fallbackPlan = generateSimulatedItinerary(destination, parsedDays, parsedBudget, userPrefs);
+        const fallbackPlan = await generateSimulatedItinerary(destination, parsedDays, parsedBudget, userPrefs);
         res.json(fallbackPlan);
       } catch (fallbackError: any) {
         console.error("Critical fallback failure:", fallbackError);

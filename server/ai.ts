@@ -1,5 +1,31 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import { UserPreferences, DayItinerary, SavedTrip } from "./db.js";
+import { locateDestinationImage } from "./imageService.js";
+
+async function enrichItinerary(itinerary: any, destination: string): Promise<any> {
+  if (!itinerary) return itinerary;
+
+  const destImage = await locateDestinationImage(destination);
+  itinerary.image = destImage;
+
+  if (itinerary.suggestedHotels && Array.isArray(itinerary.suggestedHotels)) {
+    for (const hotel of itinerary.suggestedHotels) {
+      const query = `${hotel.name}, ${hotel.location || destination}`;
+      const currentImage = hotel.image || "";
+      if (
+        !currentImage || 
+        currentImage.includes("photo-1542314831-068cd1dbfeeb") || 
+        currentImage.includes("photo-1564507592333-c60657eea523") || 
+        currentImage.includes("photo-1522083165195-342750297f05") ||
+        currentImage.includes("photo-1537996194471-e657df975ab4")
+      ) {
+        hotel.image = await locateDestinationImage(query);
+      }
+    }
+  }
+
+  return itinerary;
+}
 
 // Lazy-loaded GenAI client to avoid crashes if API key is missing
 let aiClient: GoogleGenAI | null = null;
@@ -355,19 +381,19 @@ const MOCK_DESTINATIONS: Record<string, {
   }
 };
 
-export function generateSimulatedItinerary(
+export async function generateSimulatedItinerary(
   destination: string,
   daysCount: number,
   budget: number,
   userPrefs: UserPreferences
-): {
+): Promise<{
   weatherSummary: string;
   budgetBreakdown: { flightsEstimated: number; hotelsEstimated: number; activitiesEstimated: number; dailyAllowance: number };
   days: DayItinerary[];
   suggestedHotels: any[];
   suggestedFlights: any[];
   travelTips: string[];
-} {
+}> {
   const normDest = destination.toLowerCase().trim();
   console.log(`[AI Simulator] Formulating simulated high-fidelity plans for: ${destination} | Tier: ${userPrefs.budgetLevel}`);
   
@@ -448,7 +474,7 @@ export function generateSimulatedItinerary(
     return images[idx % images.length];
   };
 
-  return {
+  const itinerary = {
     weatherSummary: base.weather,
     budgetBreakdown: {
       flightsEstimated: flightEst,
@@ -465,6 +491,8 @@ export function generateSimulatedItinerary(
     suggestedFlights: base.flights.map(f => ({ ...f, price: Math.round(f.price * (userPrefs.budgetLevel === 'backpacker' ? 0.6 : budgetFactor * 0.8)) })),
     travelTips: base.tips
   };
+
+  return await enrichItinerary(itinerary, destination);
 }
 
 export async function generateAILineItinerary(
@@ -484,7 +512,7 @@ export async function generateAILineItinerary(
   const client = getAIClient();
 
   if (!client) {
-    return generateSimulatedItinerary(destination, daysCount, budget, userPrefs);
+    return await generateSimulatedItinerary(destination, daysCount, budget, userPrefs);
   }
 
   // Real Gemini API call with structured JSON schema
@@ -508,9 +536,7 @@ export async function generateAILineItinerary(
 
     const modelsToTry = [
       "gemini-3.5-flash",
-      "gemini-2.5-flash",
-      "gemini-2.0-flash-exp",
-      "gemini-1.5-flash",
+      "gemini-3.1-flash-lite",
       "gemini-flash-latest"
     ];
 
@@ -626,11 +652,11 @@ export async function generateAILineItinerary(
     }
 
     const parsed = JSON.parse(responseText);
-    return parsed;
+    return await enrichItinerary(parsed, destination);
   } catch (error) {
     console.error("Gemini real generation failed, returning simulated payload instead:", error);
     // Silent fall back to simulated to make sure app performs 100% reliably
-    return generateSimulatedItinerary(destination, daysCount, budget, userPrefs);
+    return await generateSimulatedItinerary(destination, daysCount, budget, userPrefs);
   }
 }
 
