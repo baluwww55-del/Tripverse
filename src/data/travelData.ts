@@ -246,6 +246,97 @@ export const allDestinations: PopularSpot[] = [
     weather: "18°C • High Mountain Mist",
     description: "Wander through rolling green carpeted tea estates, visit rare Nilgiri Tahr mountain goats in Eravikulam, and breathe tea-scented air.",
     coordinates: [10.0889, 77.0595]
+  },
+  {
+    destination: "Amer Fort, Jaipur",
+    duration: 3,
+    budget: 36000,
+    style: "Sheesh Mahal Mirrors & Rajput Ramparts",
+    image: "https://images.unsplash.com/photo-1599661046289-e31897846e41?auto=format&fit=crop&w=1200&q=80",
+    tag: "Fort",
+    rating: 4.8,
+    location: "Jaipur, Rajasthan",
+    weather: "25°C • Desert Breeze",
+    description: "Witness the magnificent Mirror Palace and grand defense portals overlooking Maota Lake, built into beautiful rugged yellow hills.",
+    coordinates: [26.9855, 75.8513]
+  },
+  {
+    destination: "Gateway of India, Mumbai",
+    duration: 3,
+    budget: 40000,
+    style: "Colonial Triumphal Arch & Yacht Harbors",
+    image: "https://images.unsplash.com/photo-1566552881560-0be862a7c445?auto=format&fit=crop&w=1200&q=80",
+    tag: "Monument",
+    rating: 4.9,
+    location: "Colaba, Mumbai",
+    weather: "30°C • Arabian Shore Sea breeze",
+    description: "A monumental basalt arch built in 1911 overlooking the Arabian Sea, greeting travelers and yachts in India's leading financial capital.",
+    coordinates: [18.9220, 72.8347]
+  },
+  {
+    destination: "Meghalaya, Shillong",
+    duration: 5,
+    budget: 42000,
+    style: "Double-Decker Living Root Bridges & Wettest Clouds",
+    image: "https://images.unsplash.com/photo-1538330621152-4f18014dd79b?auto=format&fit=crop&w=1200&q=80",
+    tag: "Hill Station",
+    rating: 4.9,
+    location: "Cherrapunji & Shillong, Meghalaya",
+    weather: "16°C • Rain & High Clouds",
+    description: "Hike through lush verdant gorges to witness biological suspension root bridges crafted by Khasi tribes across rushing canyon rapids.",
+    coordinates: [25.2702, 91.7323]
+  },
+  {
+    destination: "Mumbai, Maharashtra",
+    duration: 4,
+    budget: 44000,
+    style: "Marine Drive Queen's Necklace & Bollywood Buzz",
+    image: "https://images.unsplash.com/photo-1570168007204-dfb528c6958f?auto=format&fit=crop&w=1200&q=80",
+    tag: "City",
+    rating: 4.8,
+    location: "Mumbai District, Maharashtra",
+    weather: "29°C • Sea Breeze Coast",
+    description: "Explore the pulsing heartbeat of India. Walk the historic art-deco structures of Fort district and watch sunset from Marine Drive promenade.",
+    coordinates: [19.0760, 72.8777]
+  },
+  {
+    destination: "Bengaluru, Karnataka",
+    duration: 3,
+    budget: 32000,
+    style: "Microbrewery Cult & Botanical Glass Houses",
+    image: "https://images.unsplash.com/photo-1596117808736-701aef4a5c92?auto=format&fit=crop&w=1200&q=80",
+    tag: "City",
+    rating: 4.7,
+    location: "Bengaluru City, Karnataka",
+    weather: "23°C • Spring-Like Perfect",
+    description: "Breathe in India's high-tech garden capital. Walk tree-lined avenues, explore Tudor-style Bangalore Palace, and sample craft brews.",
+    coordinates: [12.9716, 77.5946]
+  },
+  {
+    destination: "Hyderabad, Telangana",
+    duration: 3,
+    budget: 33000,
+    style: "Nizami Pearl Bazaars & Authentic Dum Biryani",
+    image: "https://images.unsplash.com/photo-1608958220963-6b45567bc925?auto=format&fit=crop&w=1200&q=80",
+    tag: "City",
+    rating: 4.8,
+    location: "Hyderabad Deccan, Telangana",
+    weather: "27°C • Sunny Deccan",
+    description: "Stroll between medieval minars of Charminar, tour massive Golconda Fort, and experience world-renowned culinary Nizami delicacies.",
+    coordinates: [17.3850, 78.4867]
+  },
+  {
+    destination: "Chennai, Tamil Nadu",
+    duration: 3,
+    budget: 29000,
+    style: "Marina Sandy Coastline & Carnatic Music Havens",
+    image: "https://images.unsplash.com/photo-1582510003544-4d00b7f74220?auto=format&fit=crop&w=1200&q=80",
+    tag: "City",
+    rating: 4.7,
+    location: "Chennai City, Tamil Nadu",
+    weather: "31°C • Coastal Sunny",
+    description: "Examine heritage Dravidian architecture in Kapaleeshwarar Temple and feel the salt breeze along Asia's longest golden urban sand beach.",
+    coordinates: [13.0827, 80.2707]
   }
 ];
 
