@@ -261,11 +261,14 @@ const MOCK_WEATHER_DATA: Record<string, Omit<WeatherResponse, "destination">> = 
   }
 };
 
+// Cooldown to avoid making calls when quota is known to be exceeded
+let quotaExceededUntil = 0;
+
 export async function getWeatherForecast(destination: string): Promise<WeatherResponse> {
   const normDest = destination.trim().toLowerCase();
   const client = getAIClient();
 
-  if (client) {
+  if (client && Date.now() >= quotaExceededUntil) {
     try {
       console.log(`[Weather AI] Fetching live smart weather telemetry for ${destination}...`);
       const prompt = `
@@ -333,6 +336,13 @@ export async function getWeatherForecast(destination: string): Promise<WeatherRe
           }
         });
       } catch (geminiError: any) {
+        if (
+          String(geminiError.message || geminiError).toLowerCase().includes("quota") ||
+          String(geminiError.message || geminiError).toLowerCase().includes("resource_exhausted") ||
+          String(geminiError.status || "").includes("429")
+        ) {
+          quotaExceededUntil = Date.now() + 60000;
+        }
         console.warn("[Weather AI] gemini-3.5-flash failed or experienced high demand. Trying fallback model gemini-flash-latest...", geminiError.message || geminiError);
         response = await client.models.generateContent({
           model: "gemini-flash-latest",
@@ -375,9 +385,18 @@ export async function getWeatherForecast(destination: string): Promise<WeatherRe
       const parsed = JSON.parse(response.text.trim());
       return parsed;
 
-    } catch (err) {
-      console.warn("[Weather AI] Gemini call erred. Resorting to simulated intelligence fallback:", err);
+    } catch (err: any) {
+      if (
+        String(err.message || err).toLowerCase().includes("quota") ||
+        String(err.message || err).toLowerCase().includes("resource_exhausted") ||
+        String(err.status || "").includes("429")
+      ) {
+        quotaExceededUntil = Date.now() + 60000;
+      }
+      console.warn("[Weather AI] Gemini call erred. Resorting to simulated intelligence fallback:", err.message || err);
     }
+  } else if (client && Date.now() < quotaExceededUntil) {
+    console.log("[Weather AI] Cooldown active due to previous API rate-limit/quota limit. Bypassing Gemini to use simulated weather forecast.");
   }
 
   // Fallback simulator matches key sub-stems

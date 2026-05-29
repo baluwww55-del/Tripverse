@@ -1,243 +1,250 @@
-import fetch from 'node-fetch';
+import dotenv from 'dotenv';
+dotenv.config();
 
-/**
- * 100% unique curated premium travel graphics for the core Indian destinations.
- * Each destination is mapped to its exact, specific high-resolution Unsplash photo.
- */
-const CURATED_IMAGES: { [key: string]: string } = {
-  "taj mahal": "https://images.unsplash.com/photo-1564507592333-c60657eea523?auto=format&fit=crop&w=1200&q=80",
-  "agra": "https://images.unsplash.com/photo-1564507592333-c60657eea523?auto=format&fit=crop&w=1200&q=80",
-  "taj mahal, agra": "https://images.unsplash.com/photo-1564507592333-c60657eea523?auto=format&fit=crop&w=1200&q=80",
-
-  "mysore palace": "https://images.unsplash.com/photo-1590050752117-238cb0612b1b?auto=format&fit=crop&w=1200&q=80",
-  "mysore": "https://images.unsplash.com/photo-1590050752117-238cb0612b1b?auto=format&fit=crop&w=1200&q=80",
-  "mysuru": "https://images.unsplash.com/photo-1590050752117-238cb0612b1b?auto=format&fit=crop&w=1200&q=80",
-
-  "hampi": "https://images.unsplash.com/photo-1620766182966-c6eb5ed2b788?auto=format&fit=crop&w=1200&q=80",
-  "hampi ruins": "https://images.unsplash.com/photo-1620766182966-c6eb5ed2b788?auto=format&fit=crop&w=1200&q=80",
-
-  "kerala backwaters": "https://images.unsplash.com/photo-1593693397690-362cb9666fc2?auto=format&fit=crop&w=1200&q=80",
-  "alappuzha": "https://images.unsplash.com/photo-1593693397690-362cb9666fc2?auto=format&fit=crop&w=1200&q=80",
-  "alleppey": "https://images.unsplash.com/photo-1593693397690-362cb9666fc2?auto=format&fit=crop&w=1200&q=80",
-
-  "goa beaches": "https://images.unsplash.com/photo-1512343879784-a960bf40e7f2?auto=format&fit=crop&w=1200&q=80",
-  "goa": "https://images.unsplash.com/photo-1512343879784-a960bf40e7f2?auto=format&fit=crop&w=1200&q=80",
-
-  "golden temple": "https://images.unsplash.com/photo-1514222134-b57cbb8ce073?auto=format&fit=crop&w=1200&q=80",
-  "amritsar": "https://images.unsplash.com/photo-1514222134-b57cbb8ce073?auto=format&fit=crop&w=1200&q=80",
-
-  "red fort": "https://images.unsplash.com/photo-1598107312061-f9355002623d?auto=format&fit=crop&w=1200&q=80",
-
-  "qutub minar": "https://images.unsplash.com/photo-1589308078059-be1415eab4c3?auto=format&fit=crop&w=1200&q=80",
-  "mehrauli": "https://images.unsplash.com/photo-1589308078059-be1415eab4c3?auto=format&fit=crop&w=1200&q=80",
-
-  "konark sun temple": "https://images.unsplash.com/photo-1601999109332-542b18dbec57?auto=format&fit=crop&w=1200&q=80",
-  "konark": "https://images.unsplash.com/photo-1601999109332-542b18dbec57?auto=format&fit=crop&w=1200&q=80",
-
-  "meenakshi temple": "https://images.unsplash.com/photo-1609137144814-8032bb19234b?auto=format&fit=crop&w=1200&q=80",
-  "madurai": "https://images.unsplash.com/photo-1609137144814-8032bb19234b?auto=format&fit=crop&w=1200&q=80",
-
-  "ajanta": "https://images.unsplash.com/photo-1578593139888-39622e2047de?auto=format&fit=crop&w=1200&q=80",
-  "ellora": "https://images.unsplash.com/photo-1578593139888-39622e2047de?auto=format&fit=crop&w=1200&q=80",
-  "ajanta caves": "https://images.unsplash.com/photo-1578593139888-39622e2047de?auto=format&fit=crop&w=1200&q=80",
-  "ajanta & ellora caves": "https://images.unsplash.com/photo-1578593139888-39622e2047de?auto=format&fit=crop&w=1200&q=80",
-  "aurangabad": "https://images.unsplash.com/photo-1578593139888-39622e2047de?auto=format&fit=crop&w=1200&q=80",
-
+// Canonical premium curated image database which ensures immediate high-fidelity rendering
+const CURATED_IMAGES: Record<string, string> = {
+  "taj-mahal": "https://images.unsplash.com/photo-1564507592333-c60657eea523?auto=format&fit=crop&w=1200&q=80",
+  "mysore-palace": "https://images.unsplash.com/photo-1590050752117-238cb0612b1b?auto=format&fit=crop&w=1200&q=80",
+  "hampi-ruins": "https://images.unsplash.com/photo-1620766182966-c6eb5ed2b788?auto=format&fit=crop&w=1200&q=80",
+  "kerala-backwaters": "https://images.unsplash.com/photo-1593693397690-362cb9666fc2?auto=format&fit=crop&w=1200&q=80",
+  "goa-beaches": "https://images.unsplash.com/photo-1512343879784-a960bf40e7f2?auto=format&fit=crop&w=1200&q=80",
+  "golden-temple": "https://images.unsplash.com/photo-1514222134-b57cbb8ce073?auto=format&fit=crop&w=1200&q=80",
+  "red-fort": "https://images.unsplash.com/photo-1598107312061-f9355002623d?auto=format&fit=crop&w=1200&q=80",
+  "qutub-minar": "https://images.unsplash.com/photo-1589308078059-be1415eab4c3?auto=format&fit=crop&w=1200&q=80",
+  "konark-sun-temple": "https://images.unsplash.com/photo-1601999109332-542b18dbec57?auto=format&fit=crop&w=1200&q=80",
+  "meenakshi-temple": "https://images.unsplash.com/photo-1609137144814-8032bb19234b?auto=format&fit=crop&w=1200&q=80",
+  "ajanta-ellora": "https://images.unsplash.com/photo-1578593139888-39622e2047de?auto=format&fit=crop&w=1200&q=80",
   "darjeeling": "https://images.unsplash.com/photo-1557962453-e9ea0d0d3419?auto=format&fit=crop&w=1200&q=80",
-
   "coorg": "https://images.unsplash.com/photo-1580456172607-bbcd385bbd15?auto=format&fit=crop&w=1200&q=80",
-  "kodagu": "https://images.unsplash.com/photo-1580456172607-bbcd385bbd15?auto=format&fit=crop&w=1200&q=80",
-
   "ooty": "https://images.unsplash.com/photo-1616190419596-e2839e578ad4?auto=format&fit=crop&w=1200&q=80",
-
-  "munnar": "https://images.unsplash.com/photo-1522083165195-342750297f05?auto=format&fit=crop&w=1200&q=80",
-
-  "amer fort": "https://images.unsplash.com/photo-1599661046289-e31897846e41?auto=format&fit=crop&w=1200&q=80",
-
-  "gateway of india": "https://images.unsplash.com/photo-1566552881560-0be862a7c445?auto=format&fit=crop&w=1200&q=80",
-
-  "meghalaya": "https://images.unsplash.com/photo-1538330621152-4f18014dd79b?auto=format&fit=crop&w=1200&q=80",
+  "munnar-tea-hills": "https://images.unsplash.com/photo-1522083165195-342750297f05?auto=format&fit=crop&w=1200&q=80",
+  "amer-fort": "https://images.unsplash.com/photo-1599661046289-e31897846e41?auto=format&fit=crop&w=1200&q=80",
+  "gateway-of-india": "https://images.unsplash.com/photo-1566552881560-0be862a7c445?auto=format&fit=crop&w=1200&q=80",
   "shillong": "https://images.unsplash.com/photo-1538330621152-4f18014dd79b?auto=format&fit=crop&w=1200&q=80",
-
   "mumbai": "https://images.unsplash.com/photo-1570168007204-dfb528c6958f?auto=format&fit=crop&w=1200&q=80",
-
   "bengaluru": "https://images.unsplash.com/photo-1596117808736-701aef4a5c92?auto=format&fit=crop&w=1200&q=80",
-  "bangalore": "https://images.unsplash.com/photo-1596117808736-701aef4a5c92?auto=format&fit=crop&w=1200&q=80",
-
   "hyderabad": "https://images.unsplash.com/photo-1608958220963-6b45567bc925?auto=format&fit=crop&w=1200&q=80",
-  "charminar": "https://images.unsplash.com/photo-1608958220963-6b45567bc925?auto=format&fit=crop&w=1200&q=80",
-
   "chennai": "https://images.unsplash.com/photo-1582510003544-4d00b7f74220?auto=format&fit=crop&w=1200&q=80",
-
   "jaipur": "https://images.unsplash.com/photo-1477584305313-a9f53db49381?auto=format&fit=crop&w=1200&q=80",
-  "jaipur forts": "https://images.unsplash.com/photo-1477584305313-a9f53db49381?auto=format&fit=crop&w=1200&q=80",
-
   "varanasi": "https://images.unsplash.com/photo-1561361531-901416800cc4?auto=format&fit=crop&w=1200&q=80",
-  "kanyakumari": "https://images.unsplash.com/photo-1582510003544-4d00b7f74220?auto=format&fit=crop&w=1200&q=80",
-  "jodhpur": "https://images.unsplash.com/photo-1562141960-c115f8f012a4?auto=format&fit=crop&w=1200&q=80",
-  "udaipur": "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=1200&q=80",
-  "kashmir values": "https://images.unsplash.com/photo-1595818944075-59b12a38531d?auto=format&fit=crop&w=1200&q=80",
   "kashmir": "https://images.unsplash.com/photo-1595818944075-59b12a38531d?auto=format&fit=crop&w=1200&q=80",
-  "srinagar": "https://images.unsplash.com/photo-1595818944075-59b12a38531d?auto=format&fit=crop&w=1200&q=80",
-  "leh ladakh": "https://images.unsplash.com/photo-1596176530529-78163a4f7af2?auto=format&fit=crop&w=1200&q=80",
+  "srinagar-kashmir": "https://images.unsplash.com/photo-1595818944075-59b12a38531d?auto=format&fit=crop&w=1200&q=80",
   "ladakh": "https://images.unsplash.com/photo-1596176530529-78163a4f7af2?auto=format&fit=crop&w=1200&q=80",
+  "udaipur": "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=1200&q=80"
 };
 
-// General beautiful backup realistic scenery mapping strictly unrelated to Taj Mahal.
+// General beautiful scenery of India for ultimate character-hash fallback
 const GENERAL_INDIAN_SCENERY = [
   "https://images.unsplash.com/photo-1506461883276-594a12b11db3?auto=format&fit=crop&w=1200&q=80", // Himalayan Peaks
   "https://images.unsplash.com/photo-1524492412937-b28074a5d7da?auto=format&fit=crop&w=1200&q=80", // Royal Indian Archway
-  "https://images.unsplash.com/photo-1588122421711-effc91e4ab6f?auto=format&fit=crop&w=1200&q=80", // Indian Forest/Reserve
+  "https://images.unsplash.com/photo-1588122421711-effc91e4ab6f?auto=format&fit=crop&w=1200&q=80", // Indian Forest
   "https://images.unsplash.com/photo-1616190419596-e2839e578ad4?auto=format&fit=crop&w=1200&q=80", // Western Ghats Valley
   "https://images.unsplash.com/photo-1599661046289-e31897846e41?auto=format&fit=crop&w=1200&q=80", // Rajasthani Arched Courtyard
   "https://images.unsplash.com/photo-1580456172607-bbcd385bbd15?auto=format&fit=crop&w=1200&q=80", // Scenic Tea Highlands
 ];
 
-// Memory cache matching custom search queries to verified unique URLs
-const IMAGE_CACHE: { [key: string]: string } = {};
+// In-Memory Destination Image Cache (prevents duplicate downstream calls)
+const IMAGE_CACHE: Record<string, string> = {};
 
-// Direct Tracking URL Registry to avoid returning duplicate images for different queries
+// Tracks used photo URLs for local fallback searches (prevents sharing duplicate generic images in the same itinerary)
 const REGISTERED_USED_URLS = new Set<string>();
 
 /**
- * Normalizes user search queries into strict Place, State, and "India" parameters for Step 1.
+ * Normalizes any variations in names to a canonical destination key identifier
  */
-function getExactFormattedQuery(query: string): string {
+export function getCanonicalKey(query: string): string {
   const q = query.toLowerCase();
+  if (q.includes("taj mahal") || q.includes("agra")) return "taj-mahal";
+  if (q.includes("mysore") || q.includes("mysuru")) return "mysore-palace";
+  if (q.includes("hampi")) return "hampi-ruins";
+  if (q.includes("golden temple") || q.includes("amritsar")) return "golden-temple";
+  if (q.includes("kerala") || q.includes("backwaters") || q.includes("alleppey") || q.includes("alappuzha")) return "kerala-backwaters";
+  if (q.includes("munnar")) return "munnar-tea-hills";
+  if (q.includes("coorg") || q.includes("kodagu")) return "coorg";
+  if (q.includes("ooty")) return "ooty";
+  if (q.includes("jaipur") || q.includes("hawa mahal")) return "jaipur";
+  if (q.includes("amer")) return "amer-fort";
+  if (q.includes("goa")) return "goa-beaches";
+  if (q.includes("qutub")) return "qutub-minar";
+  if (q.includes("red fort")) return "red-fort";
+  if (q.includes("gateway of india")) return "gateway-of-india";
+  if (q.includes("mumbai")) return "mumbai";
+  if (q.includes("bengaluru") || q.includes("bangalore")) return "bengaluru";
+  if (q.includes("charminar") || q.includes("hyderabad")) return "hyderabad";
+  if (q.includes("meenakshi") || q.includes("madurai")) return "meenakshi-temple";
+  if (q.includes("ajanta") || q.includes("ellora")) return "ajanta-ellora";
+  if (q.includes("konark")) return "konark-sun-temple";
+  if (q.includes("darjeeling")) return "darjeeling";
+  if (q.includes("shillong") || q.includes("meghalaya")) return "shillong";
+  if (q.includes("kashmir") || q.includes("srinagar")) return "srinagar-kashmir";
+  if (q.includes("ladakh") || q.includes("leh")) return "ladakh";
+  if (q.includes("varanasi")) return "varanasi";
+  if (q.includes("udaipur")) return "udaipur";
   
-  // Return early if the query already follows the precise structured format
-  if (q.includes("india") && (q.includes("karnataka") || q.includes("punjab") || q.includes("pradesh") || q.includes("kerala") || q.includes("delhi") || q.includes("maharashtra") || q.includes("rajasthan"))) {
-    return query;
+  return q.replace(/[^a-z0-9]/g, "-").replace(/-+/g, "-");
+}
+
+/**
+ * Transforms any query/landmark into a strict structured geographic search format:
+ * "<Place Name>, <State>, India"
+ */
+export function getExactFormattedQuery(query: string): string {
+  const q = query.toLowerCase().trim();
+
+  // Return formatted early for primary popular states/destinations
+  if (q.includes("taj mahal") || q.includes("agra")) {
+    return "Taj Mahal, Agra, Uttar Pradesh, India";
   }
-
-  let place = query;
-  let state = "";
-
   if (q.includes("mysore") || q.includes("mysuru")) {
-    place = "Mysore Palace";
-    state = "Karnataka";
-  } else if (q.includes("hampi")) {
-    place = "Hampi Ruins";
-    state = "Karnataka";
-  } else if (q.includes("taj mahal") || q.includes("agra")) {
-    place = "Taj Mahal";
-    state = "Uttar Pradesh";
-  } else if (q.includes("golden temple") || q.includes("amritsar")) {
-    place = "Golden Temple";
-    state = "Punjab";
-  } else if (q.includes("kerala") || q.includes("backwaters") || q.includes("alappuzha") || q.includes("alleppey")) {
-    place = "Kerala Backwaters Alappuzha";
-    state = "Kerala";
-  } else if (q.includes("munnar")) {
-    place = "Munnar Tea Hills";
-    state = "Kerala";
-  } else if (q.includes("coorg") || q.includes("kodagu")) {
-    place = "Coorg Highlands";
-    state = "Karnataka";
-  } else if (q.includes("ooty") || q.includes("ootacamund")) {
-    place = "Ooty Peak Hill Station";
-    state = "Tamil Nadu";
-  } else if (q.includes("jaipur") || q.includes("amer")) {
-    place = q.includes("amer") ? "Amer Fort Jaipur" : "Jaipur City Palace Hawa Mahal";
-    state = "Rajasthan";
-  } else if (q.includes("goa")) {
-    place = "Goa Beaches";
-    state = "Goa";
-  } else if (q.includes("qutub") || q.includes("delhi") || q.includes("red fort")) {
-    if (q.includes("qutub")) place = "Qutub Minar";
-    else if (q.includes("red fort")) place = "Red Fort";
-    else place = "New Delhi Heritage Places";
-    state = "Delhi";
-  } else if (q.includes("mumbai") || q.includes("gateway")) {
-    place = q.includes("gateway") ? "Gateway of India" : "Marine Drive Mumbai";
-    state = "Maharashtra";
-  } else if (q.includes("hyderabad") || q.includes("charminar")) {
-    place = q.includes("charminar") ? "Charminar Hyderabad" : "Hyderabad Landmark";
-    state = "Telangana";
-  } else if (q.includes("chennai")) {
-    place = "Marina Beach Chennai";
-    state = "Tamil Nadu";
-  } else if (q.includes("konark") || q.includes("odisha")) {
-    place = "Konark Sun Temple";
-    state = "Odisha";
-  } else if (q.includes("meenakshi") || q.includes("madurai")) {
-    place = "Meenakshi Amman Temple";
-    state = "Tamil Nadu";
-  } else if (q.includes("ajanta") || q.includes("ellora")) {
-    place = "Ajanta and Ellora Caves";
-    state = "Maharashtra";
-  } else if (q.includes("darjeeling")) {
-    place = "Darjeeling Tea Gardens";
-    state = "West Bengal";
-  } else if (q.includes("meghalaya") || q.includes("shillong")) {
-    place = "Shillong Living Root Bridges";
-    state = "Meghalaya";
-  } else if (q.includes("kashmir") || q.includes("srinagar") || q.includes("gulmarg")) {
-    place = "Dal Lake Srinagar Kashmir";
-    state = "Jammu and Kashmir";
-  } else if (q.includes("ladakh") || q.includes("leh")) {
-    place = "Pangong Lake Leh Ladakh";
-    state = "Ladakh";
-  } else if (q.includes("varanasi") || q.includes("ghat")) {
-    place = "Ganga Ghats Varanasi";
-    state = "Uttar Pradesh";
-  } else if (q.includes("udaipur")) {
-    place = "Taj Lake Palace Udaipur";
-    state = "Rajasthan";
+    return "Mysore Palace, Mysuru, Karnataka, India";
+  }
+  if (q.includes("hampi")) {
+    return "Hampi Ruins, Hampi, Karnataka, India";
+  }
+  if (q.includes("golden temple") || q.includes("amritsar")) {
+    return "Golden Temple, Amritsar, Punjab, India";
+  }
+  if (q.includes("kerala") || q.includes("backwaters") || q.includes("alleppey") || q.includes("alappuzha")) {
+    return "Kerala Backwaters, Alappuzha, Kerala, India";
+  }
+  if (q.includes("munnar")) {
+    return "Munnar Tea Hills, Idukki, Kerala, India";
+  }
+  if (q.includes("coorg") || q.includes("kodagu")) {
+    return "Coorg Highlands, Kodagu, Karnataka, India";
+  }
+  if (q.includes("ooty")) {
+    return "Ooty Peak Hill Station, Ooty, Tamil Nadu, India";
+  }
+  if (q.includes("hawa mahal") || (q.includes("jaipur") && !q.includes("amer"))) {
+    return "Hawa Mahal, Jaipur, Rajasthan, India";
+  }
+  if (q.includes("amer fort") || q.includes("amer")) {
+    return "Amer Fort, Jaipur, Rajasthan, India";
+  }
+  if (q.includes("goa")) {
+    return "Baga Beach, Goa, India";
+  }
+  if (q.includes("gateway of india")) {
+    return "Gateway of India, Mumbai, Maharashtra, India";
+  }
+  if (q.includes("mumbai")) {
+    return "Gateway of India, Mumbai, Maharashtra, India";
+  }
+  if (q.includes("qutub minar") || q.includes("qutub")) {
+    return "Qutub Minar, Mehrauli, Delhi, India";
+  }
+  if (q.includes("red fort")) {
+    return "Red Fort, Netaji Subhash Marg, Delhi, India";
+  }
+  if (q.includes("charminar") || q.includes("hyderabad")) {
+    return "Charminar, Hyderabad, Telangana, India";
+  }
+  if (q.includes("meenakshi") || q.includes("madurai")) {
+    return "Meenakshi Amman Temple, Madurai, Tamil Nadu, India";
+  }
+  if (q.includes("ajanta") || q.includes("ellora")) {
+    return "Ajanta and Ellora Caves, Aurangabad, Maharashtra, India";
+  }
+  if (q.includes("konark")) {
+    return "Konark Sun Temple, Konark, Odisha, India";
+  }
+  if (q.includes("darjeeling")) {
+    return "Darjeeling Tea Gardens, Darjeeling, West Bengal, India";
+  }
+  if (q.includes("shillong") || q.includes("meghalaya")) {
+    return "Shillong Peak, Shillong, Meghalaya, India";
+  }
+  if (q.includes("dal lake") || q.includes("srinagar") || q.includes("kashmir")) {
+    return "Dal Lake, Srinagar, Jammu and Kashmir, India";
+  }
+  if (q.includes("pangong") || q.includes("leh") || q.includes("ladakh")) {
+    return "Pangong Lake, Leh, Ladakh, India";
+  }
+  if (q.includes("varanasi") || q.includes("ganga")) {
+    return "Ganga Ghats, Varanasi, Uttar Pradesh, India";
+  }
+  if (q.includes("udaipur")) {
+    return "Taj Lake Palace, Udaipur, Rajasthan, India";
   }
 
-  if (state) {
-    return `${place} ${state} India`;
+  // Fallback pattern if none matched, ensuring clean spacing and comma structure
+  const parts = query.split(',').map(p => p.trim()).filter(Boolean);
+  if (parts.length >= 2) {
+    const lastPart = parts[parts.length - 1].toLowerCase();
+    if (lastPart === "india") {
+      return query;
+    }
+    return `${parts.join(", ")}, India`;
   }
-  return `${query} India`;
+  return `${query}, India`;
 }
 
 /**
- * Filter out queries containing hotel indicators so they don't hijack primary landmark photos.
+ * Checks if a query is related to a hotel search
  */
-function isHotelQuery(query: string): boolean {
-  const q = query.toLowerCase();
-  const hotelTerms = [
-    "hotel", "resort", "stay", "suites", "inn", "boutique", "villa", "grand mercure", 
-    "oberoi", "taj ", "marriott", "hyatt", "sheraton", "novotel", "radisson", "trident", 
-    "holiday inn", "evolve back", "palace heritage", "leela palace", "retreat", "hostel", "lodging"
-  ];
-  return hotelTerms.some(term => q.includes(term));
+function isHotelQuery(cleanTerm: string): boolean {
+  return cleanTerm.includes("hotel") || 
+         cleanTerm.includes("resort") || 
+         cleanTerm.includes("palace hotel") || 
+         cleanTerm.includes("villas") || 
+         cleanTerm.includes("lodging") || 
+         cleanTerm.includes("stay") || 
+         cleanTerm.includes("inn") || 
+         cleanTerm.includes("retreat") ||
+         cleanTerm.includes("heritage palace") ||
+         cleanTerm.includes("seleqtions") ||
+         cleanTerm.includes("oberoi") ||
+         cleanTerm.includes("leela") ||
+         cleanTerm.includes("taj west") ||
+         cleanTerm.includes("safari");
 }
 
-/**
- * Validates whether the fetched image is relevant, context-fitting, and unique.
- * Filters out flags, maps, emblems, generic SVGs, logos, and incorrect target places.
- */
-function validateImage(url: string, titleOrFile: string, targetQuery: string): boolean {
-  const normTitle = (titleOrFile || "").toLowerCase().trim();
-  const normQuery = targetQuery.toLowerCase().trim();
-  const urlLower = url.toLowerCase();
+const CURATED_HOTEL_IMAGES = [
+  "https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1200&q=80", // Luxury Resort Pool
+  "https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?auto=format&fit=crop&w=1200&q=80", // Elite Bed Chamber
+  "https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fit=crop&w=1200&q=80", // Elegant Suite Bed
+  "https://images.unsplash.com/photo-1571896349842-33c89424de2d?auto=format&fit=crop&w=1200&q=80", // Outdoor Wellness Lounge
+  "https://images.unsplash.com/photo-1445019980597-93fa8acb246c?auto=format&fit=crop&w=1200&q=80", // Grand Hotel Lobby
+  "https://images.unsplash.com/photo-1540541338287-41700207dee6?auto=format&fit=crop&w=1200&q=80", // Seaside Hotel Pool
+  "https://images.unsplash.com/photo-1582719508461-905c673771fd?auto=format&fit=crop&w=1200&q=80", // Premium Room Interior
+  "https://images.unsplash.com/photo-1618773928121-c32242e63f39?auto=format&fit=crop&w=1200&q=80", // Contemporary Elite Bed
+];
 
-  // 1. Block vectors, maps, coats-or-arms, emblems, icons or SVGs
-  const fileExclusions = [
-    ".svg", ".pdf", ".gif", ".ogg", ".webm", ".mp4", "map", "flag", "emblem", "coat of arms",
-    "shield", "logo", "icon", "chart", "graph", "diagram", "locator", "district map", "satellite"
+/**
+ * Validates whether fetched image metadata matches the query intent 
+ */
+function validateImage(url: string, titleAndMeta: string, targetQuery: string): boolean {
+  if (!url) return false;
+
+  const metaLower = titleAndMeta.toLowerCase();
+  const targetLower = targetQuery.toLowerCase();
+
+  // 1. Refuse useless maps, layout diagrams, logos, icons, flags, schemas
+  const badPatterns = [
+    "map", "layout", "diagram", "icon", "logo", "flag", "schema", "blueprint", "iconography",
+    ".svg", "marker", "locator", "district chart", "demographics", "route", "weather symbol"
   ];
-  if (fileExclusions.some(term => normTitle.includes(term) || urlLower.includes(term))) {
+  if (badPatterns.some(pattern => metaLower.includes(pattern) || url.toLowerCase().includes(pattern))) {
     return false;
   }
 
-  // 2. Reject duplicate URLs
+  // 2. Reject Taj Mahal images if they creep into other unrelated searches
+  if (url.includes("photo-1564507592333-c60657eea523") && !targetLower.includes("taj") && !targetLower.includes("agra")) {
+    return false;
+  }
+
+  // 3. Prevent duplicate images inside the same itinerary
   if (REGISTERED_USED_URLS.has(url)) {
     return false;
   }
 
-  // 3. Confirm relevancy match on core unique nouns (ensure Hampi doesn't get Taj Mahal, etc.)
-  const tokens = normQuery
-    .replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, "")
-    .split(/\s+/)
-    .filter(token => token.length > 2 && !["india", "tourism", "state", "travel", "landmark", "explore", "vacation", "ruins", "beaches", "karnataka", "punjab", "rajasthan", "tamil", "nadu", "kerala", "uttar", "pradesh", "delhi"].includes(token));
-
+  // 4. Require partial token matching for dynamic API fallbacks (guarantees local context relevance)
+  const tokens = targetLower.replace(/[^a-z0-9\s]/g, "").split(/\s+/).filter(tok => tok.length > 2 && tok !== "and" && tok !== "the" && tok !== "near" && tok !== "india" && tok !== "hotel");
   if (tokens.length > 0) {
-    const hasOverlap = tokens.some(token => normTitle.includes(token));
-    if (!hasOverlap) {
-      console.warn(`[Image Mismatch Validation] Rejecting URL [${url}] for target [${targetQuery}]: No matching tokens [${tokens.join(", ")}]`);
+    const isMatched = tokens.some(tok => metaLower.includes(tok));
+    if (!isMatched) {
+      console.warn(`[Image Mismatch Validation] Rejecting URL [${url}] for target [${targetQuery}]`);
       return false;
     }
   }
@@ -252,29 +259,21 @@ function validateImage(url: string, titleOrFile: string, targetQuery: string): b
 export async function locateDestinationImage(query: string): Promise<string> {
   const step1Query = getExactFormattedQuery(query);
   const cleanTerm = query.toLowerCase().replace(/[,\.]/g, "").trim();
-  const cacheKey = cleanTerm.replace(/[^a-z0-9]/g, "-");
+  const isHotel = isHotelQuery(cleanTerm);
+  
+  const canonical = getCanonicalKey(query);
+  const cacheKey = (isHotel ? "hotel-" : "") + (canonical || cleanTerm.replace(/[^a-z0-9]/g, "-"));
 
-  // A. Check Memory Cache First (Strict destination cache matching)
-  if (IMAGE_CACHE[cacheKey]) {
-    return IMAGE_CACHE[cacheKey];
+  // A. Curated Database Search (Top priority: guarantees zero-latency, 100% correct primary images)
+  if (!isHotel && CURATED_IMAGES[canonical]) {
+    const curatedUrl = CURATED_IMAGES[canonical];
+    console.log(`[Image Debugging] Destination Query: "${step1Query}" | Canonical: "${canonical}" | Source: Curated Unsplash Database`);
+    return curatedUrl;
   }
 
-  // B. Exact Match Curated Database Lookup (Immediate visual guarantee)
-  const queryIsHotel = isHotelQuery(cleanTerm);
-  for (const [key, val] of Object.entries(CURATED_IMAGES)) {
-    // If it is a hotel query, skip general city keys to avoid hijacking primary landmarks
-    if (queryIsHotel && ["mysore", "mysuru", "agra", "jaipur", "goa", "kerala", "mumbai", "bengaluru", "bangalore", "delhi", "hyderabad", "chennai", "hampi", "coorg", "ooty", "munnar", "srinagar", "kashmir", "ladakh", "varanasi", "udaipur"].includes(key)) {
-      continue;
-    }
-
-    if (cleanTerm === key || cleanTerm === `${key} landmark` || cleanTerm.startsWith(key) || (key.length > 4 && cleanTerm.includes(key))) {
-      if (!REGISTERED_USED_URLS.has(val)) {
-        IMAGE_CACHE[cacheKey] = val;
-        REGISTERED_USED_URLS.add(val);
-        console.log(`[Image Debugging] Destination Query: "${step1Query}" | Place ID: "LOCAL-CURATED" | Image URL: "${val}" | API response source: "Local Curated Database"`);
-        return val;
-      }
-    }
+  // B. Check Memory Cache First (for custom secondary searches)
+  if (IMAGE_CACHE[cacheKey]) {
+    return IMAGE_CACHE[cacheKey];
   }
 
   // C. Google Places Platform (New) Live Integration (If configured)
@@ -303,15 +302,15 @@ export async function locateDestinationImage(query: string): Promise<string> {
           const placeAddress = place.formattedAddress || "";
           
           if (place.photos && place.photos.length > 0) {
-            // STEP 4 & 5: Validate match & uniqueness, retry if duplicate or invalid
             for (const photo of place.photos) {
               const photoName = photo.name;
+              // Build standard media fetching URL
               const photoUrl = `https://places.googleapis.com/v1/${photoName}/media?key=${gmpKey}&maxWidthPx=1200`;
               
               if (validateImage(photoUrl, `${placeDisplayName} ${placeAddress}`, cleanTerm)) {
                 IMAGE_CACHE[cacheKey] = photoUrl;
                 REGISTERED_USED_URLS.add(photoUrl);
-                console.log(`[Image Debugging] Destination Query: "${step1Query}" | Place ID: "${place.id}" | Image URL: "${photoUrl}" | API response source: "Google Places API (New)"`);
+                console.log(`[Image Debugging] Query: "${step1Query}" | Place ID: "${place.id}" | Source: Google Places API (New)`);
                 return photoUrl;
               }
             }
@@ -342,7 +341,7 @@ export async function locateDestinationImage(query: string): Promise<string> {
         if (imgUrl && validateImage(imgUrl, title, cleanTerm)) {
           IMAGE_CACHE[cacheKey] = imgUrl;
           REGISTERED_USED_URLS.add(imgUrl);
-          console.log(`[Image Debugging] Destination Query: "${step1Query}" | Place ID: "WIKIMEDIA-COMMONS-FILE" | Image URL: "${imgUrl}" | API response source: "Wikimedia Commons API"`);
+          console.log(`[Image Debugging] Query: "${step1Query}" | Source: Wikimedia Commons API`);
           return imgUrl;
         }
       }
@@ -371,7 +370,7 @@ export async function locateDestinationImage(query: string): Promise<string> {
         if (pageImg && validateImage(pageImg, pageTitle, cleanTerm)) {
           IMAGE_CACHE[cacheKey] = pageImg;
           REGISTERED_USED_URLS.add(pageImg);
-          console.log(`[Image Debugging] Destination Query: "${step1Query}" | Place ID: "WIKIPEDIA-PAGE-IMG" | Image URL: "${pageImg}" | API response source: "Wikipedia PageImage API"`);
+          console.log(`[Image Debugging] Query: "${step1Query}" | Source: Wikipedia PageImage API`);
           return pageImg;
         }
       }
@@ -382,6 +381,15 @@ export async function locateDestinationImage(query: string): Promise<string> {
 
   // E. Safe Fallback: Character-Hash Induced Visual Signature (Strictly Unique scenery, NEVER repeats Taj Mahal!)
   const stringHash = cleanTerm.split("").reduce((acc, char) => acc + char.charCodeAt(0), 0);
+  
+  if (isHotel) {
+    const selectedIndex = Math.abs(stringHash) % CURATED_HOTEL_IMAGES.length;
+    const hotelFallback = CURATED_HOTEL_IMAGES[selectedIndex];
+    IMAGE_CACHE[cacheKey] = hotelFallback;
+    console.log(`[Image Debugging] Query: "${step1Query}" | Source: Curated Hotel Fallback Signature`);
+    return hotelFallback;
+  }
+
   const selectedIndex = Math.abs(stringHash) % GENERAL_INDIAN_SCENERY.length;
   const hashBasedSceneryUrl = GENERAL_INDIAN_SCENERY[selectedIndex];
 
@@ -389,11 +397,11 @@ export async function locateDestinationImage(query: string): Promise<string> {
   if (!hashBasedSceneryUrl || hashBasedSceneryUrl.includes("photo-1564507592333-c60657eea523")) {
     const finalSafeUrl = "https://images.unsplash.com/photo-1506461883276-594a12b11db3?auto=format&fit=crop&w=1200&q=80";
     IMAGE_CACHE[cacheKey] = finalSafeUrl;
-    console.log(`[Image Debugging] Destination Query: "${step1Query}" | Place ID: "SAFE-DEFAULT" | Image URL: "${finalSafeUrl}" | API response source: "Safe Fallback Scenery"`);
+    console.log(`[Image Debugging] Query: "${step1Query}" | Source: Safe Default Fallback Scenery`);
     return finalSafeUrl;
   }
 
   IMAGE_CACHE[cacheKey] = hashBasedSceneryUrl;
-  console.log(`[Image Debugging] Destination Query: "${step1Query}" | Place ID: "HASH-FALLBACK-${selectedIndex}" | Image URL: "${hashBasedSceneryUrl}" | API response source: "Character-Hash Scenery Fallback"`);
+  console.log(`[Image Debugging] Query: "${step1Query}" | Source: Character-Hash Scenery Fallback`);
   return hashBasedSceneryUrl;
 }

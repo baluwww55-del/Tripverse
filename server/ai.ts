@@ -30,6 +30,9 @@ async function enrichItinerary(itinerary: any, destination: string): Promise<any
 // Lazy-loaded GenAI client to avoid crashes if API key is missing
 let aiClient: GoogleGenAI | null = null;
 
+// Cooldown to avoid making calls when quota is known to be exceeded
+let quotaExceededUntil = 0;
+
 function getAIClient(): GoogleGenAI | null {
   if (!aiClient) {
     const apiKey = process.env.GEMINI_API_KEY;
@@ -525,7 +528,10 @@ export async function generateAILineItinerary(
   const normDest = destination.toLowerCase().trim();
   const client = getAIClient();
 
-  if (!client) {
+  if (!client || Date.now() < quotaExceededUntil) {
+    if (client && Date.now() < quotaExceededUntil) {
+      console.log(`[Voyage AI Planner] Cooldown active due to previous API rate-limit/quota limit. Bypassing Gemini to use simulated itinerary.`);
+    }
     return await generateSimulatedItinerary(destination, daysCount, budget, userPrefs);
   }
 
@@ -549,8 +555,7 @@ export async function generateAILineItinerary(
     `;
 
     const modelsToTry = [
-      "gemini-3.5-flash",
-      "gemini-3.1-flash-lite",
+      "gemini-2.5-flash",
       "gemini-flash-latest"
     ];
 
@@ -656,6 +661,13 @@ export async function generateAILineItinerary(
           break;
         }
       } catch (geminiError: any) {
+        if (
+          String(geminiError.message || geminiError).toLowerCase().includes("quota") ||
+          String(geminiError.message || geminiError).toLowerCase().includes("resource_exhausted") ||
+          String(geminiError.status || "").includes("429")
+        ) {
+          quotaExceededUntil = Date.now() + 60000;
+        }
         console.warn(`[Voyage AI Planner] Model ${modelName} encountered warning or rate-limit. Trying next fallback...`, geminiError.message || geminiError);
         lastError = geminiError;
       }
@@ -667,8 +679,15 @@ export async function generateAILineItinerary(
 
     const parsed = JSON.parse(responseText);
     return await enrichItinerary(parsed, destination);
-  } catch (error) {
-    console.error("Gemini real generation failed, returning simulated payload instead:", error);
+  } catch (error: any) {
+    if (
+      String(error.message || error).toLowerCase().includes("quota") ||
+      String(error.message || error).toLowerCase().includes("resource_exhausted") ||
+      String(error.status || "").includes("429")
+    ) {
+      quotaExceededUntil = Date.now() + 60000;
+    }
+    console.error("Gemini real generation failed, returning simulated payload instead:", error.message || error);
     // Silent fall back to simulated to make sure app performs 100% reliably
     return await generateSimulatedItinerary(destination, daysCount, budget, userPrefs);
   }
@@ -690,7 +709,10 @@ export async function processAgentChat(
     activeAgent = 'user';
   }
 
-  if (!client) {
+  if (!client || Date.now() < quotaExceededUntil) {
+    if (client && Date.now() < quotaExceededUntil) {
+      console.log(`[Agent Chat] Cooldown active due to previous API rate-limit/quota limit. Bypassing Gemini to use simulated agent response.`);
+    }
     // Elegant simulated conversational flows representing the different AI personas in the cluster!
     let reply = "";
     if (activeAgent === 'guide') {
@@ -727,6 +749,13 @@ export async function processAgentChat(
       });
       response = await chat.sendMessage({ message: latestMsg });
     } catch (chatErr: any) {
+      if (
+        String(chatErr.message || chatErr).toLowerCase().includes("quota") ||
+        String(chatErr.message || chatErr).toLowerCase().includes("resource_exhausted") ||
+        String(chatErr.status || "").includes("429")
+      ) {
+        quotaExceededUntil = Date.now() + 60000;
+      }
       console.warn("[Agent Chat] gemini-3.5-flash failed, retrying system message with stable fallback gemini-flash-latest...", chatErr.message || chatErr);
       const chat = client.chats.create({
         model: "gemini-flash-latest",
@@ -742,8 +771,15 @@ export async function processAgentChat(
       reply: response.text || "I was unable to trace that. Could you please specify your destination coordinates?",
       activeAgent
     };
-  } catch (error) {
-    console.error("Gemini chat communication failed, using fallback:", error);
+  } catch (error: any) {
+    if (
+      String(error.message || error).toLowerCase().includes("quota") ||
+      String(error.message || error).toLowerCase().includes("resource_exhausted") ||
+      String(error.status || "").includes("429")
+    ) {
+      quotaExceededUntil = Date.now() + 60000;
+    }
+    console.error("Gemini chat communication failed, using fallback:", error.message || error);
     return {
       reply: `[Planner AI Backup] Let's plan that journey! That region contains incredible highlights. Ask me to generate a fully customized day-by-day itinerary with hotels, flight lookups, and real-time coordinates above!`,
       activeAgent
